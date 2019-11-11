@@ -1,14 +1,18 @@
-TODO
+## TODO
 
-* FRAM CRC failed after setting value via MQTT
-* -make topics configurable-
-* add to git
-* add license
 * make PCB
   * add schematic
 * add description
 
-== Storage
+## Facts
+
+* ESP32
+* Configurable via webbrowser (opens Accesspoint if needed)
+* OTA updateable
+* MQTT control
+* Keeps brightness and frequency persisten
+
+## Storage
 
 We have two types of storage for data.
 the first one is the flash which have a livetime of 100.000 erase/program cycles and is used for rarely written data:
