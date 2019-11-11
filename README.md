@@ -6,18 +6,12 @@
 
 ## Facts
 
-* ESP32
-* Configurable via webbrowser (opens Accesspoint if needed)
-* OTA updateable
-* MQTT control
-* Keeps brightness and frequency persisten
+* 24V, 1A/CH (depend from cooling and type of mosfet).
+* ESP32-Wroom-32 module; dual core 240MHz for fast response.
+* Configurable via webbrowser (opens Accesspoint if needed).
+* OTA updateable.
+* MQTT control (tested with mosquitto).
+* Keeps brightness and frequency persistent so it can be switched on and off to be energy efficient.
+* FRAM to store brightness values (Livetime 10^12 erase/write cycles), MB85RC16 (I²C, 3.3V) (https://www.fujitsu.com/uk/Images/MB85RC16.pdf)
+* PCA9685 as PWM modulator
 
-## Storage
-
-We have two types of storage for data.
-the first one is the flash which have a livetime of 100.000 erase/program cycles and is used for rarely written data:
-* program
-* configuration over the web-interface
-
-The second is a small FRAM, the the MB85RC16 (I²C, 3.3V) (https://www.fujitsu.com/uk/Images/MB85RC16.pdf)
-which can be written 10^12 times per Byte. It is used to store the brightness values which may be changed very often.
