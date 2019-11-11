@@ -1,0 +1,79 @@
+/* 
+ * This file is part of the ESP32-LED-Dimmer distribution (https://github.com/zebrajaeger/esp32-led-dimmer).
+ * Copyright (c) 2019 Lars Brandt.
+ * 
+ * This program is free software: you can redistribute it and/or modify  
+ * it under the terms of the GNU General Public License as published by  
+ * the Free Software Foundation, version 3.
+ *
+ * This program is distributed in the hope that it will be useful, but 
+ * WITHOUT ANY WARRANTY; without even the implied warranty of 
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License 
+ * along with this program. If not, see <http://www.gnu.org/licenses/>.
+ */
+#include "jsonparser.h"
+
+#define JSON_FREQUENCY "f"
+#define JSON_DATA "d"
+#define JSON_CHANNEL "c"
+#define JSON_CHANNEL_VALUE "v"
+
+//------------------------------------------------------------------------------
+void JsonParser::parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value), void (*cb_c)(uint8_t channel, uint16_t value))
+//------------------------------------------------------------------------------
+{
+  // frequency
+  if (doc.containsKey(JSON_FREQUENCY)) {
+    uint16_t f = doc[JSON_FREQUENCY];
+    cb_f(f);
+  }
+
+  // data
+  if (doc.containsKey(JSON_DATA)) {
+    if (doc[JSON_DATA].is<JsonArray>()) {
+      JsonArray array = doc[JSON_DATA];
+      for (const JsonObject section : array) {
+        parseChannelDataSection(section, cb_c);
+      }
+    } else if (doc[JSON_DATA].is<JsonObject>()) {
+      parseChannelDataSection(doc[JSON_DATA], cb_c);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void JsonParser::parseChannelDataSection(const JsonObject& section, void (*cb_c)(uint8_t channel, uint16_t value))
+//------------------------------------------------------------------------------
+{
+  if (section.containsKey(JSON_CHANNEL) && section.containsKey(JSON_CHANNEL_VALUE)) {
+    // channel
+    uint8_t c = section[JSON_CHANNEL];
+
+    // channel value(s)
+    if (section[JSON_CHANNEL_VALUE].is<JsonArray>()) {
+      const JsonArray& array = section[JSON_CHANNEL_VALUE].as<JsonArray>();
+      uint8_t l = array.size();
+      for (uint8_t i = 0; i < l; i++) {
+        cb_c(c, array[i]);
+      }
+    } else if (section[JSON_CHANNEL_VALUE].is<uint16_t>()) {
+      cb_c(c, section[JSON_CHANNEL_VALUE]);
+    }
+  }
+}
+
+//------------------------------------------------------------------------------
+void JsonParser::createState(JsonDocument& result, const State& state)
+//------------------------------------------------------------------------------
+{
+  result[JSON_FREQUENCY] = state.getFrequency();
+  JsonObject data = result.createNestedObject(JSON_DATA);
+  data[JSON_CHANNEL] = 0;
+  JsonArray values = data.createNestedArray(JSON_CHANNEL_VALUE);
+  for (uint8_t i = 0; i < 16; ++i) {
+    values.add(state.getChannelValue(i));
+  }
+}
