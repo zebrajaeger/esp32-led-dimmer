@@ -72,6 +72,8 @@ which can be written 10^12 times per Byte. It is used to store the brightness va
 
 ### 1.6.3. Hardware 1 (for schematic)
 
+I made the pcb with EASYEDA from JLPCB. A public link to this project is here: <https://easyeda.com/zebrajaeger/led_dimmer_v2>
+
 #### 1.6.3.1. µC
 
 * ESP32 (ESP32-WROOM-32, <https://www.espressif.com/sites/default/files/documentation/esp32-wroom-32_datasheet_en.pdf>)
