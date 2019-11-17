@@ -14,6 +14,7 @@
  * You should have received a copy of the GNU General Public License 
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #include "fm24c04.h"
 
 #include <Arduino.h>
@@ -48,7 +49,7 @@ void FM24C04::write8(uint8_t framAddr, uint8_t value)
 }
 
 //------------------------------------------------------------------------------
-uint8_t FM24C04::read8(uint8_t framAddr)
+uint8_t FM24C04::read8(uint8_t framAddr) const
 //------------------------------------------------------------------------------
 {
   Wire.beginTransmission(i2c_addr);
@@ -72,7 +73,7 @@ void FM24C04::write16(uint8_t framAddr, uint16_t value)
 }
 
 //------------------------------------------------------------------------------
-uint16_t FM24C04::read16(uint8_t framAddr)
+uint16_t FM24C04::read16(uint8_t framAddr) const
 //------------------------------------------------------------------------------
 {
   Wire.beginTransmission(i2c_addr);
@@ -99,7 +100,7 @@ void FM24C04::write32(uint8_t framAddr, uint32_t value)
 }
 
 //------------------------------------------------------------------------------
-uint32_t FM24C04::read32(uint8_t framAddr)
+uint32_t FM24C04::read32(uint8_t framAddr) const
 //------------------------------------------------------------------------------
 {
   Wire.beginTransmission(i2c_addr);
@@ -115,7 +116,7 @@ uint32_t FM24C04::read32(uint8_t framAddr)
 }
 
 //------------------------------------------------------------------------------
-void FM24C04::print_wire_result(uint8_t r)
+void FM24C04::print_wire_result(uint8_t r) const
 //------------------------------------------------------------------------------
 {
   if (r == 0) {
@@ -151,7 +152,7 @@ void FM24C04::refreshChecksum(uint8_t from, uint8_t to, uint8_t checksumAdr)
 }
 
 //------------------------------------------------------------------------------
-bool FM24C04::validate(uint8_t from, uint8_t to, uint8_t checksumAdr)
+bool FM24C04::validate(uint8_t from, uint8_t to, uint8_t checksumAdr) const
 //------------------------------------------------------------------------------
 {
   uint32_t checksum = calcChecksum(from, to);
@@ -160,7 +161,7 @@ bool FM24C04::validate(uint8_t from, uint8_t to, uint8_t checksumAdr)
 }
 
 //------------------------------------------------------------------------------
-uint32_t FM24C04::calcChecksum(uint8_t from, uint8_t to)
+uint32_t FM24C04::calcChecksum(uint8_t from, uint8_t to) const
 //------------------------------------------------------------------------------
 {
   CRC32 crc;

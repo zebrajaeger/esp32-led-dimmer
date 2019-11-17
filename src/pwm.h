@@ -17,32 +17,17 @@
 
 #pragma once
 
-#include <Arduino.h >
-#include <map>
+#include <Arduino.h>
 
-#include <WiFi.h>
+#include <FaBoPWM_PCA9685.h>
 
-#include <ArduinoJson.h>
-#include <PubSubClient.h>
-
-class Mqtt {
+class PWM {
  public:
-  typedef std::function<void(JsonDocument& doc)> SubscriptionResponseFunction_t;
-
-  Mqtt();
-
+  PWM();
   bool begin();
-
-  void loop();
-
-  bool connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName, const String& password);
-  bool disconnect();
-  bool isConnected();
-  void onData(SubscriptionResponseFunction_t f);
+  uint16_t setFrequency(uint16_t& frequency);
+  void setChannelValue(uint8_t& channel, uint16_t& value);
 
  private:
-  void callback_(char* topic, byte* payload, unsigned int length);
-  WiFiClient wifiClient_;
-  PubSubClient pubSubClient_;
-  SubscriptionResponseFunction_t cb_;
+  FaBoPWM faboPWM_;
 };

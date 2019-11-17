@@ -15,44 +15,40 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "state.h"
+#include "pwm.h"
 
 //------------------------------------------------------------------------------
-uint16_t State::getFrequency() const
+PWM::PWM()
+    : faboPWM_()
 //------------------------------------------------------------------------------
-{
-  return frequency_;
-}
+{}
 
 //------------------------------------------------------------------------------
-void State::setFrequency(uint16_t frequency)
+bool PWM::begin()
 //------------------------------------------------------------------------------
 {
-  frequency_ = frequency;
-}
-
-//------------------------------------------------------------------------------
-uint16_t State::getChannelValue(uint8_t channel) const
-//------------------------------------------------------------------------------
-{
-  return channels_[channel];
-}
-
-//------------------------------------------------------------------------------
-void State::setChannelValue(uint8_t channel, uint16_t value)
-//------------------------------------------------------------------------------
-{
-  Serial.printf("STATE.setChannelValue %u -> %u\n", channel, value);
-  channels_[channel] = value;
-}
-
-//------------------------------------------------------------------------------
-void State::dump()
-//------------------------------------------------------------------------------
-{
-  Serial.printf("STATE.dump: f: %u; ", frequency_);
-  for (uint8_t i = 0; i < 16; ++i) {
-    Serial.printf("%u: %u; ", i, channels_[i]);
+  bool result = faboPWM_.begin();
+  if (result) {
+    faboPWM_.init(0);
   }
-  Serial.println();
+  return result;
+}
+
+//------------------------------------------------------------------------------
+uint16_t PWM::setFrequency(uint16_t& frequency)
+//------------------------------------------------------------------------------
+{
+  if (frequency < 24) frequency = 24;
+  if (frequency > 1526) frequency = 1526;
+  faboPWM_.set_hz(frequency);
+  return frequency;
+}
+
+//------------------------------------------------------------------------------
+void PWM::setChannelValue(uint8_t& channel, uint16_t& value)
+//------------------------------------------------------------------------------
+{
+  if (channel > 15) channel = 15;
+  if (value > 4095) value = 4095;
+  faboPWM_.set_channel_value(channel, value);
 }

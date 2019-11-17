@@ -15,44 +15,44 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "state.h"
+#include "statistic.h"
 
 //------------------------------------------------------------------------------
-uint16_t State::getFrequency() const
+Statistic::Statistic()
+    : lastMeasurementTime_(0),
+      loopCount_(0),
+      period_(10000000)
+//------------------------------------------------------------------------------
+{}
+
+//------------------------------------------------------------------------------
+bool Statistic::begin(uint64_t periodMs)
 //------------------------------------------------------------------------------
 {
-  return frequency_;
+  period_ = periodMs * 1000;
+  lastMeasurementTime_ = esp_timer_get_time() + period_;
+  return true;
 }
 
 //------------------------------------------------------------------------------
-void State::setFrequency(uint16_t frequency)
+void Statistic::loop()
 //------------------------------------------------------------------------------
 {
-  frequency_ = frequency;
-}
-
-//------------------------------------------------------------------------------
-uint16_t State::getChannelValue(uint8_t channel) const
-//------------------------------------------------------------------------------
-{
-  return channels_[channel];
-}
-
-//------------------------------------------------------------------------------
-void State::setChannelValue(uint8_t channel, uint16_t value)
-//------------------------------------------------------------------------------
-{
-  Serial.printf("STATE.setChannelValue %u -> %u\n", channel, value);
-  channels_[channel] = value;
-}
-
-//------------------------------------------------------------------------------
-void State::dump()
-//------------------------------------------------------------------------------
-{
-  Serial.printf("STATE.dump: f: %u; ", frequency_);
-  for (uint8_t i = 0; i < 16; ++i) {
-    Serial.printf("%u: %u; ", i, channels_[i]);
+  ++loopCount_;
+  if (lastMeasurementTime_ < esp_timer_get_time()) {
+    printStatistic();
+    loopCount_ = 0;
+    lastMeasurementTime_ = lastMeasurementTime_ + period_;
   }
-  Serial.println();
+}
+
+//------------------------------------------------------------------------------
+void Statistic::printStatistic()
+//------------------------------------------------------------------------------
+{
+  uint64_t currentTime = esp_timer_get_time();
+  uint64_t lastPeriodTime = lastMeasurementTime_ - period_;
+  uint64_t delta = currentTime - lastPeriodTime;
+  uint64_t loopsPerSecond = (loopCount_ * 1000000) / delta;
+  Serial.printf("[STATISTIC] %" PRIu64 " loops in %" PRIu64 "ms (%" PRIu64 " loops/s)\n", loopCount_, delta, loopsPerSecond);
 }

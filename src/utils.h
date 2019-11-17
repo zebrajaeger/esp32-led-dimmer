@@ -14,8 +14,20 @@
  * You should have received a copy of the GNU General Public License 
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
+
 #pragma once
 
+#include <Arduino.h>
+
+#include <WiFi.h>
+
 class Utils {
-  static int endsWith(const char *str, const char *suffix);
+ public:
+  static String createId() {
+    char id[20];
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+    sprintf(id, "esp32-%02x%02x%02x%02x%02x%02x", mac[0], mac[1], mac[2], mac[3], mac[4], mac[5]);
+    return id;
+  }
 };

@@ -17,32 +17,31 @@
 
 #pragma once
 
-#include <Arduino.h >
-#include <map>
+#include <Arduino.h>
 
-#include <WiFi.h>
+#include "fm24c04.h"
 
-#include <ArduinoJson.h>
-#include <PubSubClient.h>
-
-class Mqtt {
+class FRAM {
  public:
-  typedef std::function<void(JsonDocument& doc)> SubscriptionResponseFunction_t;
+  static const uint8_t MAX_CHANNEL_COUNT = 16;
+  static const uint16_t DATA_START_ADR = 0;
+  static const uint16_t BASE_ADR_FREQUENCY = DATA_START_ADR;
+  static const uint16_t BASE_ADR_CHANNELVALUES = BASE_ADR_FREQUENCY + 2;
+  static const uint16_t BASE_ADR_CRC = BASE_ADR_CHANNELVALUES + (MAX_CHANNEL_COUNT * 2);
+  static const uint16_t DATA_END_ADR = BASE_ADR_CRC - 1;
+  static const uint16_t COMPLETE_END_ADR = BASE_ADR_CRC + 3;
 
-  Mqtt();
-
+  FRAM();
   bool begin();
+  void setFrequency(uint16_t frequency);
+  uint16_t getFrequency() const;
+  void setChannelValue(uint8_t channel, uint16_t value);
+  uint16_t getChannelValue(uint8_t channel) const;
+  void recalculateCRC();
+  bool validateCRC();
 
-  void loop();
-
-  bool connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName, const String& password);
-  bool disconnect();
-  bool isConnected();
-  void onData(SubscriptionResponseFunction_t f);
+  void dump() const;
 
  private:
-  void callback_(char* topic, byte* payload, unsigned int length);
-  WiFiClient wifiClient_;
-  PubSubClient pubSubClient_;
-  SubscriptionResponseFunction_t cb_;
+  FM24C04 fm24c04_;
 };

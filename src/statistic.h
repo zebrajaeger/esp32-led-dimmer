@@ -15,34 +15,18 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#pragma once
 
-#include <Arduino.h >
-#include <map>
+#include <Arduino.h>
 
-#include <WiFi.h>
-
-#include <ArduinoJson.h>
-#include <PubSubClient.h>
-
-class Mqtt {
+class Statistic {
  public:
-  typedef std::function<void(JsonDocument& doc)> SubscriptionResponseFunction_t;
-
-  Mqtt();
-
-  bool begin();
-
+  Statistic();
+  bool begin(uint64_t periodMs = 10000);
   void loop();
 
-  bool connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName, const String& password);
-  bool disconnect();
-  bool isConnected();
-  void onData(SubscriptionResponseFunction_t f);
-
  private:
-  void callback_(char* topic, byte* payload, unsigned int length);
-  WiFiClient wifiClient_;
-  PubSubClient pubSubClient_;
-  SubscriptionResponseFunction_t cb_;
+  void printStatistic();
+  uint64_t lastMeasurementTime_;
+  uint64_t loopCount_;
+  uint64_t period_;
 };

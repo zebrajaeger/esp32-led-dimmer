@@ -17,32 +17,30 @@
 
 #pragma once
 
-#include <Arduino.h >
-#include <map>
+#include <WIFI.h>
 
-#include <WiFi.h>
-
-#include <ArduinoJson.h>
-#include <PubSubClient.h>
-
-class Mqtt {
+class WiFiState {
  public:
-  typedef std::function<void(JsonDocument& doc)> SubscriptionResponseFunction_t;
+  typedef void (*CallbackConnect)();
+  typedef void (*CallbackDisconnect)(bool wasConnected);
 
-  Mqtt();
+  WiFiState();
 
-  bool begin();
+  void onWifiEvent(WiFiEvent_t event);
 
-  void loop();
-
-  bool connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName, const String& password);
-  bool disconnect();
-  bool isConnected();
-  void onData(SubscriptionResponseFunction_t f);
+  bool isConnected() const;
+  void onConnect(CallbackConnect cb);
+  void onDisconnect(CallbackDisconnect cb);
+  
+  const String& getEventName(WiFiEvent_t idx) const;
+  const String& getStatusName(wl_status_t status) const;
+  void printStatus() const;
 
  private:
-  void callback_(char* topic, byte* payload, unsigned int length);
-  WiFiClient wifiClient_;
-  PubSubClient pubSubClient_;
-  SubscriptionResponseFunction_t cb_;
+  static const String eventNames_[28];
+  static const String statusNames_[9];
+
+  CallbackConnect cbConnect_;
+  CallbackDisconnect cbDisconnect_;
+  bool isConnected_ = false;
 };

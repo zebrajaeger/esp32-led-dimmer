@@ -15,78 +15,87 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "mqtt.h"
+#include "fram.h"
 
 //------------------------------------------------------------------------------
-Mqtt::Mqtt()
-    : wifiClient_(),
-      pubSubClient_(wifiClient_)
+FRAM::FRAM()
+    : fm24c04_()
 //------------------------------------------------------------------------------
 {}
 
 //------------------------------------------------------------------------------
-bool Mqtt::begin() { return true; }
-
-//------------------------------------------------------------------------------
-void Mqtt::loop()
+bool FRAM::begin()
 //------------------------------------------------------------------------------
 {
-  pubSubClient_.loop();
+  return fm24c04_.begin();
 }
 
 //------------------------------------------------------------------------------
-bool Mqtt::connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName, const String& password)
+void FRAM::setFrequency(uint16_t frequency)
 //------------------------------------------------------------------------------
 {
-  if (pubSubClient_.connected()) {
-    pubSubClient_.disconnect();
+  fm24c04_.write16(BASE_ADR_FREQUENCY, frequency);
+}
+
+//------------------------------------------------------------------------------
+uint16_t FRAM::getFrequency() const
+//------------------------------------------------------------------------------
+{
+  return fm24c04_.read16(BASE_ADR_FREQUENCY);
+}
+
+//------------------------------------------------------------------------------
+void FRAM::setChannelValue(uint8_t channel, uint16_t value)
+//------------------------------------------------------------------------------
+{
+  if (channel >= MAX_CHANNEL_COUNT) {
+    channel = MAX_CHANNEL_COUNT - 1;
   }
-  pubSubClient_.setServer(server.c_str(), port);
+  fm24c04_.write16(BASE_ADR_CHANNELVALUES + channel + channel, value);
+}
 
-  pubSubClient_.setCallback(std::bind(&Mqtt::callback_, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
-
-  if (pubSubClient_.connect(id.c_str(), (topic + "/alive").c_str(), 2, true, "false")) {
-    pubSubClient_.publish((topic + "/alive").c_str(), "true");
-    pubSubClient_.subscribe((topic + "/set").c_str());
+//------------------------------------------------------------------------------
+uint16_t FRAM::getChannelValue(uint8_t channel) const
+//------------------------------------------------------------------------------
+{
+  if (channel >= MAX_CHANNEL_COUNT) {
+    channel = MAX_CHANNEL_COUNT - 1;
   }
-  return pubSubClient_.connected();
+  return fm24c04_.read16(BASE_ADR_CHANNELVALUES + channel + channel);
 }
 
 //------------------------------------------------------------------------------
-bool Mqtt::disconnect()
+void FRAM::recalculateCRC()
 //------------------------------------------------------------------------------
 {
-  pubSubClient_.disconnect();
-  return pubSubClient_.connected();
+  uint32_t crc = fm24c04_.calcChecksum(DATA_START_ADR, DATA_END_ADR);
+  fm24c04_.write32(BASE_ADR_CRC, crc);
 }
 
 //------------------------------------------------------------------------------
-bool Mqtt::isConnected()
+bool FRAM::validateCRC()
 //------------------------------------------------------------------------------
 {
-  return pubSubClient_.connected();
+  return fm24c04_.validate(DATA_START_ADR, DATA_END_ADR, BASE_ADR_CRC);
 }
 
 //------------------------------------------------------------------------------
-void Mqtt::onData(SubscriptionResponseFunction_t f)
+void FRAM::dump() const
 //------------------------------------------------------------------------------
 {
-  cb_ = f;
-}
-
-//------------------------------------------------------------------------------
-void Mqtt::callback_(char* topic, byte* payload, unsigned int length)
-//------------------------------------------------------------------------------
-{
-  DynamicJsonDocument doc(256);
-  DeserializationError error = deserializeJson(doc, payload, length);
-  if (error) {
-    Serial.print(F("deserializeJson() failed: "));
-    Serial.println(error.c_str());
-    return;
+  Serial.println("[FRAM] dump");
+  Serial.printf("  from: %d to %d", DATA_START_ADR, COMPLETE_END_ADR);
+  bool first = true;
+  for (uint8_t i = DATA_START_ADR; i <= COMPLETE_END_ADR; ++i) {
+    if (first || i % 8 == 0) {
+      first = false;
+      Serial.printf("\n  0x%.4x  ", i);
+    } else {
+      if (i % 4 == 0) {
+        Serial.print(" ");
+      }
+    }
+    Serial.printf("%.2x ", fm24c04_.read8(i));
   }
-
-  if (cb_ != NULL) {
-    cb_(doc);
-  }
+  Serial.println();
 }
