@@ -112,7 +112,7 @@ void Reconnector::loop()
       break;
 
     case CONNECTION_REQUEST_DELAYED:
-      if (timer_ >= millis()) {
+      if (timer_ < millis()) {
         onMqttConnectionRequest();
       }
       break;

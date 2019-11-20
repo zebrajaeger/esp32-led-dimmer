@@ -21,7 +21,6 @@
 
 #include <AutoConnect.h>
 
-#include "configserver_menu.h"
 class DeviceData {
  public:
   String deviceName;

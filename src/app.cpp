@@ -200,6 +200,7 @@ void setup()
 
   // mDNS Server
   if (MDNS.begin(id.c_str())) {
+    MDNS.addService("http", "tcp", 80);
     Serial.printf("[APP] mDNS started with name: %s\n", id.c_str());
   }
 

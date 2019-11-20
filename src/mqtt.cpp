@@ -41,8 +41,14 @@ bool Mqtt::connect(const String& id, const String& topic, const String& server, 
   if (pubSubClient_.connected()) {
     pubSubClient_.disconnect();
   }
-  pubSubClient_.setServer(server.c_str(), port);
 
+  // prevent consequential error due to dns requests with empty string
+  if(server.isEmpty()){
+    Serial.println("[MQTT] Error: no server specified. Can not connect");
+    return false;
+  }
+
+  pubSubClient_.setServer(server.c_str(), port);
   pubSubClient_.setCallback(std::bind(&Mqtt::callback_, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
 
   if (pubSubClient_.connect(id.c_str(), (topic + "/alive").c_str(), 2, true, "false")) {

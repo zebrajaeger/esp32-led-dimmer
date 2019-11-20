@@ -1,0 +1,58 @@
+[
+    {
+        "title": "Device",
+        "uri": "/device",
+        "menu": true,
+        "element": [
+            {
+                "name": "devicename",
+                "type": "ACInput",
+                "label": "Devicename",
+                "placeholder": "Devicename"
+            },
+            {
+                "name": "set",
+                "type": "ACSubmit",
+                "value": "SET",
+                "uri": "/device_set"
+            }
+        ]
+    },
+    {
+        "title": "Mqtt",
+        "uri": "/mqtt",
+        "menu": true,
+        "element": [
+            {
+                "name": "mqtt-server",
+                "type": "ACInput",
+                "label": "MQTT-Server",
+                "placeholder": "MQTT-Server"
+            },
+            {
+                "name": "username",
+                "type": "ACInput",
+                "label": "User",
+                "placeholder": "Username"
+            },
+            {
+                "name": "password",
+                "type": "ACInput",
+                "label": "Password",
+                "placeholder": "Password"
+            },
+            {
+                "name": "topic",
+                "type": "ACInput",
+                "label": "Topic",
+                "placeholder": "Topic"
+            },
+            {
+                "name": "set",
+                "type": "ACSubmit",
+                "value": "SET",
+                "uri": "/mqtt_set"
+            }
+        ]
+    }
+]
