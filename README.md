@@ -24,7 +24,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 ## 1.3. Simplified Schematic
 
-For a complete schematic, take a look at the [example section of hardware documentation](#example-schematic)
+*You can find the complete schematic (and PCB) here:* <https://easyeda.com/zebrajaeger/led_dimmer_v2>
 
 ![Simple schematic](./doc/simple-schematic.svg)
 
@@ -93,7 +93,6 @@ which can be written 10^12 times per Byte. It is used to store the brightness va
 
 // TODO Only as code today, sorry
 #### Configuration
-
 
 #### MQTT
 
