@@ -1,5 +1,7 @@
 # 1. ESP32 LED Dimmer
 
+[![Actions Status](https://github.com/zebrajaeger/esp32-led-dimmer/workflows/CI/badge.svg)](https://github.com/zebrajaeger/esp32-led-dimmer/actions)
+
 ## 1.1. Introducion
 
 This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resolution per channel) to a mqtt server
