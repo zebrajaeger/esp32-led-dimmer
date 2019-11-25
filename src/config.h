@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <arduino.h>
+#include <Arduino.h>
 
 #include <ArduinoJson.h>
 
