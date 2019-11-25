@@ -1,6 +1,6 @@
 # 1. ESP32 LED Dimmer
 
-[![Actions Status](https://github.com/zebrajaeger/esp32-led-dimmer/workflows/.github/workflows/main.yml/badge.svg)](https://github.com/zebrajaeger/esp32-led-dimmer/actions)
+![](https://github.com/zebrajaeger/esp32-led-dimmer/workflows/.github/workflows/main.yml/badge.svg)
 
 ## 1.1. Introducion
 
