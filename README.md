@@ -6,6 +6,9 @@ A
 B
 ![](https://github.com/actions/esp32-led-dimmer/workflows/CI/badge.svg?branch=master)
 B
+C
+![](https://github.com/zebrajaeger/esp32-led-dimmer/workflows/CI/badge.svg)
+C
 
 ## 1.1. Introducion
 
