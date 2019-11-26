@@ -17,8 +17,6 @@
 
 #pragma once
 
-#include <Arduino.h>
-
 class OTA {
  public:
   OTA();

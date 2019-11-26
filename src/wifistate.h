@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <WIFI.h>
+#include <WiFi.h>
 
 class WiFiState {
  public:

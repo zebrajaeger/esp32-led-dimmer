@@ -1,5 +1,9 @@
 # 1. ESP32 LED Dimmer
 
+[![Actions Status](https://github.com/zebrajaeger/esp32-led-dimmer/workflows/CI/badge.svg)](https://github.com/zebrajaeger/esp32-led-dimmer/workflows/CI/badge.svg?branch=master)
+[![License: LGPL v3](https://img.shields.io/badge/License-LGPL%20v3-blue.svg)](https://www.gnu.org/licenses/lgpl-3.0)
+![PlatformIO](https://img.shields.io/badge/PlatformIO-Community-orange.svg)
+
 [[TOC]]
 
 ## 1.1. Introducion

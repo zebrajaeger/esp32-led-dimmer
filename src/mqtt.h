@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <Arduino.h >
+#include <Arduino.h>
 #include <map>
 
 #include <WiFi.h>

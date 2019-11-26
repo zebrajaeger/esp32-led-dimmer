@@ -17,10 +17,9 @@
 
 #include "ota.h"
 
+#include <Arduino.h>
 #include <FS.h>
 #include <SPIFFS.h>
-#include <arduino.h>
-
 #include <ArduinoOTA.h>
 
 //------------------------------------------------------------------------------
