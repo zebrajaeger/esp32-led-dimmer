@@ -204,6 +204,14 @@ void setup()
     Serial.printf("[APP] mDNS started with name: %s\n", id.c_str());
   }
 
+  // Reconnector
+  if (reconnector.begin()) {
+    reconnector.tryToConnect([]() { return mqttConnect(); });
+    reconnector.tryToDisconnect([]() { return mqtt.disconnect(); });
+    reconnector.isConnected([]() { return mqtt.isConnected(); });
+    Serial.println("[APP] reconnector started");
+  }
+
   // MQTT
   if (mqtt.begin()) {
     Serial.println("[APP] mqtt initialized");
@@ -213,18 +221,10 @@ void setup()
       fram.recalculateCRC();
       fram.dump();
     });
+    reconnector.onMQTTConfigured();
     if (wifiState.isConnected()) {
       mqttConnect();
-      reconnector.onMQTTConfigured();
     }
-  }
-
-  // Reconnector
-  if (reconnector.begin()) {
-    reconnector.tryToConnect([]() { return mqttConnect(); });
-    reconnector.tryToDisconnect([]() { return mqtt.disconnect(); });
-    reconnector.isConnected([]() { return mqtt.isConnected(); });
-    Serial.println("[APP] reconnector started");
   }
 
   // Statistic
@@ -240,6 +240,7 @@ void loop()
 //------------------------------------------------------------------------------
 {
   ota.handle();
+  // speed up updates.
   if (!ota.isUpdating()) {
     mqtt.loop();
     configServer.loop();

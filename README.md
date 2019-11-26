@@ -1,5 +1,7 @@
 # 1. ESP32 LED Dimmer
 
+[[TOC]]
+
 ## 1.1. Introducion
 
 This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resolution per channel) to a mqtt server
@@ -184,10 +186,6 @@ I use high CRI 24V LED stripes from <https://shop.led-studien.de/> with aluminiu
 
 <a id="example-schematic"></a>
 
-### 1.6.6. Hardware 3 (example schematic)
-
-![Prototype](./doc/prototype_on_breadboard_2048.webp)
-
 ## 1.7. Tools I used for development
 
 ### 1.7.1. Software
@@ -211,3 +209,15 @@ For details see the hardware section
 ### Extended Docs
 * Github Markdown: <https://github.github.com/gfm/>
 * Github Markdown Code Blocks: <https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks>
+
+## Example (My implementation)
+
+For source see here: <https://easyeda.com/zebrajaeger/led_dimmer_v2>
+
+Prototype:
+
+![Prototype](./doc/prototype_on_breadboard_2048.webp)
+
+PCB:
+
+![PCB2.0](./doc/pcb_2.0_2048.webp)
