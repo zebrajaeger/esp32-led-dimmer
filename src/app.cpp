@@ -146,6 +146,8 @@ void setup()
       Serial.printf("[APP] CH %d: %d\n", i, v);
       pwm.setChannelValue(i, v);
     }
+  } else {
+    Serial.println("[APP] ERROR I2C PWM(PCA9685) not found!");
   }
 
   // WIFI

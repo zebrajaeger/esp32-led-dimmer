@@ -79,12 +79,13 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 - [ ] Consider username and password on mqtt connection.
 - [ ] Implement mqtt port configuration.
 - [ ] The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. To be analyzed.
-- [ ] More documentation.
+- [ ] Source Code documentation.
+- [X] More documentation.
 - [X] Make PCB.
   - [X] With consider of jtag and reset + flash-button.
-- [ ] Implement timer for periodic status updates.
+- [X] Implement timer for periodic status updates.
   - [ ] And configuration of period time
-- [ ] CSS tuning
+- [X] ~~~CSS tuning~~~. No access to the page generators CSS.
 - [ ] 'Homepage' and logo for embedded server
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
 
@@ -131,9 +132,9 @@ which can be written 10^12 times per Byte. It is used to store the brightness va
 
 // TODO Only as code today, sorry
 
-#### Configuration
+#### 1.6.3.1. Configuration
 
-#### MQTT
+#### 1.6.3.2. MQTT
 
 Dictionary:
 
@@ -237,25 +238,44 @@ I use high CRI 24V LED stripes from <https://shop.led-studien.de/> with aluminiu
 
 ### 1.7.2. Hardware
 
-For details see the hardware section
+For details see the hardware section.
+
 - Esp32 DevKit v1
 - PCA9685 module from ebay
 - Breadboard
 - Prototype PCB for MOSFETs (I forgot to order adapter PCBs)
 - SOP-8 Adapter PCB from ebay for FRAM
 
-### Extended Docs
-* Github Markdown: <https://github.github.com/gfm/>
-* Github Markdown Code Blocks: <https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks>
+### 1.7.3. Extended Docs
 
-## Example (My implementation)
+- Github Markdown: <https://github.github.com/gfm/>
+- Github Markdown Code Blocks: <https://help.github.com/en/github/writing-on-github/creating-and-highlighting-code-blocks>
+
+## 1.8. Example (My implementation)
 
 For source see here: <https://easyeda.com/zebrajaeger/led_dimmer_v2>
 
-Prototype:
+### 1.8.1. Prototype
 
 ![Prototype](./doc/prototype_on_breadboard_2048.webp)
 
-PCB:
+### 1.8.2. Freshly produces PCB
+
+Bottom, Top
 
 ![PCB2.0](./doc/pcb_2.0_2048.webp)
+
+### 1.8.3. Soldered PCB
+
+Some connectors are not soldered because I don't need them.
+
+No critical bugs found. Everything works as expected!
+
+#### 1.8.3.1. Known bugs
+
+- R29 must not be placed or fuse for SP. Otherwise, the flash-voltage is 1.8V instead 3.3V and the device cannot boot.
+  - see the GPIO12(MTDI) section here: <https://github.com/espressif/esptool/wiki/ESP32-Boot-Mode-Selection>  
+  - Other option is to change the fuse 'XPD_SDIO_FORCE'. Search for 'VDD_SDIO ' here: <https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/system/efuse.html>
+- There a two resisitors named R2 (R2 and R2(*))
+
+![PCB2.0](./doc/pcb_20_soldered_2048.webp)
