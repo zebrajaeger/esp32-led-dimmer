@@ -109,12 +109,22 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 - Click on the 'Alien head' icon on the left toolbar. the 'Project Tasks' List should be visible now.
   
-    1. Execute 'Upload File System Image'. This uploads the file-system-stuff.
+    1. Not needed anymore ~~~Execute 'Upload File System Image'. This uploads the file-system-stuff.~~~
     1. Execute 'Upload'. this uploads the firmware itself.
 
 - If you don't have, change the platformio.ini file and change the 'monitor_port' line with your device port. Connect with the PlatformIO Serial Monitor (the plug icon at the bottom toolbar).
 
 - Because there are no WiFI credentials set, after a timeout of around 30s the device will spawn a accespoint you connect to with your Notebook or Smartphone. The name of the SSID starts with 'ESP'
+
+### Debug via JTAG
+
+- Olimex JTAG debugger
+- Change in
+
+      <userhome>/.platformio/packages/tool-openocd-esp32/share/openocd/scripts/board/esp-wroom-32.cfg 
+    the value of adapter_khz to 1MHz (or higher if it works stable):
+
+      adapter_khz 1000
 
 ### 1.6.2. Storage
 
@@ -141,10 +151,10 @@ which can be written 10^12 times per Byte. It is used to store the brightness va
 
 Dictionary:
 
-- 'f': frequency (in Hz)
+- 'f': frequency: 24...1500 (in Hz)
 - 'd': data
 - 'c': channel index (starts with 0)
-- 'v': brightness value: 0..4096 as linear PWM brightness steps or a  percentage value as string, i.E. "35.7%". Can be a simple value or an array. Starts with channel index.
+- 'v': brightness value: 0...4096 as linear PWM brightness steps or a  percentage value as string, i.E. "35.7%". Can be a simple value or an array. Starts with channel index.
 
 There are three topics:
 

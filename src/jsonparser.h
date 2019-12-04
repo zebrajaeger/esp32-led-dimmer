@@ -27,6 +27,7 @@ class JsonParser {
   static const char* JSON_DATA;
   static const char* JSON_CHANNEL;
   static const char* JSON_CHANNEL_VALUE;
+  static const char* JSON_CHANNEL_ALL_VALUE;
 
   static void parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value), void (*cb_c)(uint8_t channel, uint16_t value));
   static void createState(JsonDocument& result, const State& state);

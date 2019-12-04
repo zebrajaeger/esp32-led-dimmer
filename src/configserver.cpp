@@ -19,6 +19,8 @@
 
 #include <SPIFFS.h>
 
+extern const char configServerMenu[] asm("_binary_src_configserver_menu_json_start");
+
 //------------------------------------------------------------------------------
 ConfigServer::ConfigServer()
     //------------------------------------------------------------------------------
@@ -34,31 +36,26 @@ bool ConfigServer::begin(String& title)
 
   AutoConnectConfig autoConnectConfig;
   autoConnectConfig.title = title;
+  autoConnectConfig.hostName = title;
   autoConnectConfig.autoReconnect = true;
   autoConnect_.config(autoConnectConfig);
 
-  bool result = false;
-  SPIFFS.begin();
-  File page = SPIFFS.open("/menu.json", "r");
-  if (page) {
-    Serial.println("[AUTOCONNECTOR] config found");
-    result = autoConnect_.load(page);
-    page.close();
-  } else {
-    Serial.println("[AUTOCONNECTOR] ERROR: config not found");
-  }
-  SPIFFS.end();
-
+  // load config
+  bool result = autoConnect_.load(configServerMenu);
   if (result) {
-    Serial.println("[ConfigServer] AutoConnect config loaded successfully.");
+    Serial.println("[ConfigServer] AutoConnect loaded.");
+  } else {
+    Serial.println("[ConfigServer] ERROR: Autoconnect load failed.");
+  }
+
+  // start
+  if (result) {
     result = autoConnect_.begin();
     if (result) {
       Serial.println("[ConfigServer] AutoConnect started.");
     } else {
       Serial.println("[ConfigServer] ERROR: Autoconnect start failed.");
     }
-  } else {
-    Serial.println("[ConfigServer] ERROR: Autoconnect config could not be loaded.");
   }
 
   return result;

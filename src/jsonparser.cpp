@@ -21,6 +21,7 @@ const char* JsonParser::JSON_FREQUENCY = "f";
 const char* JsonParser::JSON_DATA = "d";
 const char* JsonParser::JSON_CHANNEL = "c";
 const char* JsonParser::JSON_CHANNEL_VALUE = "v";
+const char* JsonParser::JSON_CHANNEL_ALL_VALUE = "a";
 
 //------------------------------------------------------------------------------
 void JsonParser::parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value), void (*cb_c)(uint8_t channel, uint16_t value))
@@ -49,6 +50,22 @@ void JsonParser::parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value
 void JsonParser::parseChannelDataSection(const JsonObject& section, void (*cb_c)(uint8_t channel, uint16_t value))
 //------------------------------------------------------------------------------
 {
+  if (section.containsKey(JSON_CHANNEL_ALL_VALUE)) {
+    if (section[JSON_CHANNEL_ALL_VALUE].is<JsonArray>()) {
+      const JsonArray& array = section[JSON_CHANNEL_ALL_VALUE].as<JsonArray>();
+      uint8_t arrayIndex = 0;
+      uint8_t size = array.size();
+      for (uint8_t i = 0; i < 16; ++i) {
+        cb_c(i, array[arrayIndex++ % size]);
+      }
+    } else if (section[JSON_CHANNEL_ALL_VALUE].is<uint16_t>()) {
+      uint16_t all = section[JSON_CHANNEL_ALL_VALUE];
+      for (uint8_t i = 0; i < 16; ++i) {
+        cb_c(i, all);
+      }
+    }
+  }
+
   if (section.containsKey(JSON_CHANNEL) && section.containsKey(JSON_CHANNEL_VALUE)) {
     // channel
     uint8_t c = section[JSON_CHANNEL];
@@ -58,7 +75,7 @@ void JsonParser::parseChannelDataSection(const JsonObject& section, void (*cb_c)
       const JsonArray& array = section[JSON_CHANNEL_VALUE].as<JsonArray>();
       uint8_t l = array.size();
       for (uint8_t i = 0; i < l; i++) {
-        cb_c(c, array[i]);
+        cb_c(c + i, array[i]);
       }
     } else if (section[JSON_CHANNEL_VALUE].is<uint16_t>()) {
       cb_c(c, section[JSON_CHANNEL_VALUE]);
