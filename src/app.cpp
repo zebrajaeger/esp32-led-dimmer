@@ -1,17 +1,17 @@
-/* 
+/*
  * This file is part of the ESP32-LED-Dimmer distribution (https://github.com/zebrajaeger/esp32-led-dimmer).
  * Copyright (c) 2019 Lars Brandt.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -24,6 +24,7 @@
 #include "fram.h"
 #include "jsonparser.h"
 #include "mqtt.h"
+#include "multitimer.h"
 #include "ota.h"
 #include "pwm.h"
 #include "reconnector.h"
@@ -52,6 +53,7 @@ State state;
 ConfigServer configServer;
 Reconnector reconnector;
 Statistic statistic;
+MultiTimer multiTimer;
 
 //------------------------------------------------------------------------------
 void setFrequency(uint16_t frequency)
@@ -87,6 +89,18 @@ bool mqttConnect()
     Serial.printf("[APP] ERROR: Could not connect to MQTT server: '%s'\n", config.getMqttServer().c_str());
   }
   return result;
+}
+
+//------------------------------------------------------------------------------
+void publishState()
+//------------------------------------------------------------------------------
+{
+  DynamicJsonDocument doc(1024);
+  JsonParser::DeviceData dd;
+  dd.name = config.getDeviceName();
+  dd.ip = WiFi.localIP().toString();
+  JsonParser::toJson(doc, state, dd);
+  mqtt.publish(config.getTopic() + "/status", doc, false);
 }
 
 //------------------------------------------------------------------------------
@@ -129,6 +143,10 @@ void setup()
       fram.recalculateCRC();
     } else {
       Serial.println("[APP] FRAM CRC ok");
+      state.setFrequency(fram.getFrequency());
+      for (uint8_t i = 0; i < 16; ++i) {
+        state.setChannelValue(i, fram.getChannelValue(i));
+      }
     }
     fram.dump();
   } else {
@@ -222,18 +240,32 @@ void setup()
                                    [](uint8_t channel, uint16_t value) { setChannelValue(channel, value); });
       fram.recalculateCRC();
       fram.dump();
+      publishState();
     });
     reconnector.onMQTTConfigured();
     if (wifiState.isConnected()) {
       mqttConnect();
     }
+  } else {
+    Serial.println("[APP] ERROR: mqtt initialization failed");
   }
 
   // Statistic
   if (statistic.begin()) {
     Serial.println("[APP] Statistic started.");
+  } else {
+    Serial.println("[APP] ERROR: Statistic could not started.");
   }
 
+  // timer
+  if (multiTimer.begin()) {
+    Serial.println("[APP] Initialize Timer.");
+    multiTimer.set("mqtt-status", 300000, []() { publishState(); });
+  } else {
+    Serial.println("[APP] Timer initializing failed.");
+  }
+
+  // DONE
   Serial.println("[APP] Boot done, executing main loop.");
 }
 
@@ -247,6 +279,7 @@ void loop()
     mqtt.loop();
     configServer.loop();
     reconnector.loop();
+    multiTimer.loop();
   }
   statistic.loop();
 }

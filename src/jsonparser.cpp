@@ -17,11 +17,16 @@
 
 #include "jsonparser.h"
 
-const char* JsonParser::JSON_FREQUENCY = "f";
-const char* JsonParser::JSON_DATA = "d";
-const char* JsonParser::JSON_CHANNEL = "c";
-const char* JsonParser::JSON_CHANNEL_VALUE = "v";
-const char* JsonParser::JSON_CHANNEL_ALL_VALUE = "a";
+const char* JsonParser::JSON_LIGHT = "light";
+const char* JsonParser::JSON_FREQUENCY = "frequency";
+const char* JsonParser::JSON_DATA = "data";
+const char* JsonParser::JSON_CHANNEL = "channel";
+const char* JsonParser::JSON_CHANNEL_VALUE = "value";
+const char* JsonParser::JSON_CHANNEL_ALL_VALUE = "all";
+
+const char* JsonParser::JSON_DEVICE = "device";
+const char* JsonParser::JSON_DEVICE_NAME = "name";
+const char* JsonParser::JSON_DEVICE_IP = "ip";
 
 //------------------------------------------------------------------------------
 void JsonParser::parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value), void (*cb_c)(uint8_t channel, uint16_t value))
@@ -84,11 +89,18 @@ void JsonParser::parseChannelDataSection(const JsonObject& section, void (*cb_c)
 }
 
 //------------------------------------------------------------------------------
-void JsonParser::createState(JsonDocument& result, const State& state)
+void JsonParser::toJson(JsonDocument& result, const State& state, const DeviceData& deviceData)
 //------------------------------------------------------------------------------
 {
-  result[JSON_FREQUENCY] = state.getFrequency();
-  JsonObject data = result.createNestedObject(JSON_DATA);
+  // device
+  JsonObject device = result.createNestedObject(JSON_DEVICE);
+  device[JSON_DEVICE_NAME] = deviceData.name;
+  device[JSON_DEVICE_IP] = deviceData.ip;
+
+  // light
+  JsonObject light = result.createNestedObject(JSON_LIGHT);
+  light[JSON_FREQUENCY] = state.getFrequency();
+  JsonObject data = light.createNestedObject(JSON_DATA);
   data[JSON_CHANNEL] = 0;
   JsonArray values = data.createNestedArray(JSON_CHANNEL_VALUE);
   for (uint8_t i = 0; i < 16; ++i) {

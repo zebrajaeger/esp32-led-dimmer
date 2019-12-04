@@ -23,14 +23,23 @@
 
 class JsonParser {
  public:
+  static const char* JSON_LIGHT;
   static const char* JSON_FREQUENCY;
   static const char* JSON_DATA;
   static const char* JSON_CHANNEL;
   static const char* JSON_CHANNEL_VALUE;
   static const char* JSON_CHANNEL_ALL_VALUE;
+  static const char* JSON_DEVICE;
+  static const char* JSON_DEVICE_NAME;
+  static const char* JSON_DEVICE_IP;
+
+  struct DeviceData {
+    String name;
+    String ip;
+  };
 
   static void parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value), void (*cb_c)(uint8_t channel, uint16_t value));
-  static void createState(JsonDocument& result, const State& state);
+  static void toJson(JsonDocument& result, const State& state, const DeviceData& deviceData);
 
  protected:
   static void parseChannelDataSection(const JsonObject& section, void (*cb_c)(uint8_t channel, uint16_t value));

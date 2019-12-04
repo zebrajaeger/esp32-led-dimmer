@@ -1,17 +1,17 @@
-/* 
+/*
  * This file is part of the ESP32-LED-Dimmer distribution (https://github.com/zebrajaeger/esp32-led-dimmer).
  * Copyright (c) 2019 Lars Brandt.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
@@ -35,7 +35,8 @@ void Mqtt::loop()
 }
 
 //------------------------------------------------------------------------------
-bool Mqtt::connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName, const String& password)
+bool Mqtt::connect(const String& id, const String& topic, const String& server, uint16_t port, const String& userName,
+                   const String& password)
 //------------------------------------------------------------------------------
 {
   if (pubSubClient_.connected()) {
@@ -43,7 +44,7 @@ bool Mqtt::connect(const String& id, const String& topic, const String& server, 
   }
 
   // prevent consequential error due to dns requests with empty string
-  if(server.isEmpty()){
+  if (server.isEmpty()) {
     Serial.println("[MQTT] Error: no server specified. Can not connect");
     return false;
   }
@@ -95,4 +96,17 @@ void Mqtt::callback_(char* topic, byte* payload, unsigned int length)
   if (cb_ != NULL) {
     cb_(doc);
   }
+}
+
+//------------------------------------------------------------------------------
+void Mqtt::publish(const String topic, const JsonDocument &doc, bool pretty)
+//------------------------------------------------------------------------------
+{
+  String json;
+  if (pretty) {
+    serializeJsonPretty(doc, json);
+  } else {
+    serializeJson(doc, json);
+  }
+  pubSubClient_.publish(topic.c_str(), json.c_str());
 }
