@@ -92,17 +92,19 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [ ] logo.
   - [ ] Webapp backend.
   - [ ] Webapp frontend.
-- [ ] PWA to change values in a convinient way.
-- [ ] Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
+- Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
 - Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
   - [X] Implementation.
+  - [ ] Configuration.
   - [ ] Documentation.
-- [ ] Implement mqtt port configuration.
-- [X] More documentation.
-- [X] Implement timer for periodic status updates.
-  - [ ] And configuration of period time.
+- MQTT
+  - [ ] Port configuration.
+  - [ ] Send username and password on mqtt connection.
+- Timer.
+  - [X] Implement
+  - [X] for periodic status updates.
+  - [ ] Configuration of Status Update period.
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
-- [ ] Source Code documentation.
 - Dimming between different light-values with given time.
   - [ ] Linear (simple).
   - [ ] S-curve or log or something like that what looks nice and smooth.
@@ -110,7 +112,6 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 #### 1.5.1.2. Bugs
 
 - [ ] Fix Setting Trouble (UI Update).
-- [ ] Consider username and password on mqtt connection.
 - The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state.
   - [ ] Analyze.
   - [ ] Fix.
