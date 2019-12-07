@@ -291,6 +291,9 @@ void setup()
   // OTA Update
   if (ota.begin()) {
     LOG.i("OTA startet");
+    ota.onStart([]() { statusLed.off(); });
+    ota.onProgress([](double uploaded) { statusLed.blink(uploaded); });
+    ota.onEnd([]() { statusLed.on(); });
   }
 
   // mDNS Server

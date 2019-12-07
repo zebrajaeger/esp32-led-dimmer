@@ -18,23 +18,27 @@
 #include "ota.h"
 
 #include <Arduino.h>
+#include <ArduinoOTA.h>
 #include <FS.h>
 #include <SPIFFS.h>
-#include <ArduinoOTA.h>
 
 //------------------------------------------------------------------------------
 OTA::OTA()
+    : LOG("OTA"),
+      isUpdating_(false)
 //------------------------------------------------------------------------------
-{
-  isUpdating_ = false;
-}
+{}
 
 //------------------------------------------------------------------------------
 bool OTA::begin()
 //------------------------------------------------------------------------------
 {
   ArduinoOTA
-      .onStart([=]() {
+      .onStart([&]() {
+        if (startCallback_) {
+          startCallback_();
+        }
+
         isUpdating_ = true;
         String type;
         if (ArduinoOTA.getCommand() == U_FLASH) {
@@ -45,11 +49,21 @@ bool OTA::begin()
         }
         Serial.println("[OTA] Start updating " + type);
       })
-      .onEnd([=]() {
+      .onEnd([&]() {
+        if (endCallback_) {
+          endCallback_();
+        }
+
         Serial.println("\nEnd");
         isUpdating_ = false;
       })
-      .onProgress([](unsigned int progress, unsigned int total) { Serial.printf("[OTA] Progress: %u%%\r", (progress / (total / 100))); })
+      .onProgress([&](unsigned int progress, unsigned int total) {
+        if (progressCallback_) {
+          progressCallback_((double)progress/(double)total);
+        }
+
+        Serial.printf("[OTA] Progress: %u%%\r", (progress / (total / 100)));
+      })
       .onError([=](ota_error_t error) {
         isUpdating_ = false;
         Serial.printf("[OTA] Error[%u]: ", error);
@@ -82,3 +96,16 @@ bool OTA::isUpdating()
 {
   return isUpdating_;
 }
+
+//------------------------------------------------------------------------------
+void OTA::onStart(StartEndCallback cb)
+//------------------------------------------------------------------------------
+{}
+//------------------------------------------------------------------------------
+void OTA::onEnd(StartEndCallback cb)
+//------------------------------------------------------------------------------
+{}
+//------------------------------------------------------------------------------
+void OTA::onProgress(ProgressCallback cb)
+//------------------------------------------------------------------------------
+{}

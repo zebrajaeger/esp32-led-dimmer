@@ -13,23 +13,28 @@
 - [1.3. Simplified Schematic](#13-simplified-schematic)
 - [1.4. Motivation](#14-motivation)
 - [1.5. TODO](#15-todo)
+  - [1.5.1. Software](#151-software)
+    - [1.5.1.1. Features](#1511-features)
+    - [1.5.1.2. Bugs](#1512-bugs)
+  - [1.5.2. Hardware](#152-hardware)
 - [1.6. Documentation](#16-documentation)
   - [1.6.1. Installation](#161-installation)
-  - [1.6.2. Storage](#162-storage)
-    - [1.6.2.1. Rarely written](#1621-rarely-written)
-    - [1.6.2.2. Often written](#1622-often-written)
-  - [1.6.3. Software](#163-software)
-    - [1.6.3.1. Configuration](#1631-configuration)
-    - [1.6.3.2. MQTT](#1632-mqtt)
-  - [1.6.4. Hardware 1 / schematic](#164-hardware-1--schematic)
-    - [1.6.4.1. µC](#1641-%C2%B5c)
-    - [1.6.4.2. Mosfets](#1642-mosfets)
-    - [1.6.4.3. FRAM](#1643-fram)
-    - [1.6.4.4. PCA9685](#1644-pca9685)
-    - [1.6.4.5. DC/DC](#1645-dcdc)
-  - [1.6.5. Hardware 2 (external components)](#165-hardware-2-external-components)
-    - [1.6.5.1. AC/DC](#1651-acdc)
-    - [1.6.5.2. LED stripes](#1652-led-stripes)
+  - [1.6.2. Debug via JTAG](#162-debug-via-jtag)
+  - [1.6.3. Storage](#163-storage)
+    - [1.6.3.1. Rarely written](#1631-rarely-written)
+    - [1.6.3.2. Often written](#1632-often-written)
+  - [1.6.4. Software](#164-software)
+    - [1.6.4.1. Configuration](#1641-configuration)
+    - [1.6.4.2. MQTT](#1642-mqtt)
+  - [1.6.5. Hardware 1 / schematic](#165-hardware-1--schematic)
+    - [1.6.5.1. µC](#1651-%C2%B5c)
+    - [1.6.5.2. Mosfets](#1652-mosfets)
+    - [1.6.5.3. FRAM](#1653-fram)
+    - [1.6.5.4. PCA9685](#1654-pca9685)
+    - [1.6.5.5. DC/DC](#1655-dcdc)
+  - [1.6.6. Hardware 2 (external components)](#166-hardware-2-external-components)
+    - [1.6.6.1. AC/DC](#1661-acdc)
+    - [1.6.6.2. LED stripes](#1662-led-stripes)
 - [1.7. Tools I used for development](#17-tools-i-used-for-development)
   - [1.7.1. Software](#171-software)
   - [1.7.2. Hardware](#172-hardware)
@@ -79,27 +84,38 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 ## 1.5. TODO
 
-- [ ] Fix Setting Trouble (UI Update).
+### 1.5.1. Software
+
+#### 1.5.1.1. Features
+
 - [ ] 'Homepage' and logo for embedded server, Diode and Poti or something like that.
 - [ ] PWA to change values in a convinient way.
 - [ ] Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
 - [ ] Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
-- [ ] Consider username and password on mqtt connection.
 - [ ] Implement mqtt port configuration.
 - [X] More documentation.
-- [X] Make PCB.
-  - [X] With consider of jtag and reset + flash-button.
 - [X] Implement timer for periodic status updates.
   - [ ] And configuration of period time
 - [X] ~~~CSS tuning~~~. No access to the page generators CSS.
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
+- [ ] Source Code documentation.
+
+#### 1.5.1.2. Bugs
+
+- [ ] Fix Setting Trouble (UI Update).
+- [ ] Consider username and password on mqtt connection.
 - The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. 
   - [ ] Analyze
   - [ ] Fix
-- [ ] Source Code documentation.
 - Every 2nd boot Connection trouble analyze
   - [X] Analyze
   - [X] Fix. Hack -> see https://github.com/espressif/arduino-esp32/issues/2501
+
+### 1.5.2. Hardware
+
+- [X] Make PCB.
+  - [X] With consider of jtag and reset + flash-button.
+- [ ] 2nd Status LED (another Color).
 
 ## 1.6. Documentation
 
@@ -125,7 +141,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 - Because there are no WiFI credentials set, after a timeout of around 30s the device will spawn a accespoint you connect to with your Notebook or Smartphone. The name of the SSID starts with 'ESP'
 
-### Debug via JTAG
+### 1.6.2. Debug via JTAG
 
 - Olimex JTAG debugger
 - Change in
@@ -135,9 +151,9 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
       adapter_khz 1000
 
-### 1.6.2. Storage
+### 1.6.3. Storage
 
-#### 1.6.2.1. Rarely written
+#### 1.6.3.1. Rarely written
 
 We have two types of storage for data.
 the first one is the flash which have a livetime of 100.000 erase/program cycles and is used for rarely written data:
@@ -145,18 +161,18 @@ the first one is the flash which have a livetime of 100.000 erase/program cycles
 - Firmware
 - Configuration data from web-interface
 
-#### 1.6.2.2. Often written
+#### 1.6.3.2. Often written
 
 The second is a small FRAM, the the MB85RC16 (I²C, 3.3V) (<https://www.fujitsu.com/uk/Images/MB85RC16.pdf>)
 which can be written 10^12 times per Byte. It is used to store the brightness values which may be changed very often.
 
-### 1.6.3. Software
+### 1.6.4. Software
 
 // TODO Only as code today, sorry
 
-#### 1.6.3.1. Configuration
+#### 1.6.4.1. Configuration
 
-#### 1.6.3.2. MQTT
+#### 1.6.4.2. MQTT
 
 Dictionary:
 
@@ -215,11 +231,11 @@ There are three topics:
   }
   ```
 
-### 1.6.4. Hardware 1 / schematic
+### 1.6.5. Hardware 1 / schematic
 
 I made the scheamtic and pcb with EASYEDA from JLPCB. A public link to this project is here: <https://easyeda.com/zebrajaeger/led_dimmer_v2>
 
-#### 1.6.4.1. µC
+#### 1.6.5.1. µC
 
 - ESP32 (ESP32-WROOM-32)
   - Dual core, 240MHz  
@@ -233,7 +249,7 @@ ESP32 devkit v1
 
 ![PCA9685 Module](./doc/esp32_devkit_v1.webp)
 
-#### 1.6.4.2. Mosfets
+#### 1.6.5.2. Mosfets
 
 Every N-Channel Mosfet that is sure fully on @ 2.5V gate voltage
 
@@ -242,7 +258,7 @@ I use:
 - IRLML6344 (37mΩ @ Ug=2.5V) <https://www.infineon.com/dgdl/irlml6344pbf.pdf?fileId=5546d462533600a4015356689c44262c>
 - AO3400 (53mΩ @ Ug=2.5V) <http://www.aosmd.com/pdfs/datasheet/ao3400.pdf>
 
-#### 1.6.4.3. FRAM
+#### 1.6.5.3. FRAM
 
 Requirements:
 
@@ -254,7 +270,7 @@ I use:
 
 - MB85RC16 (16K=2K×8) (<https://www.fujitsu.com/uk/Images/MB85RC16.pdf>)
 
-#### 1.6.4.4. PCA9685
+#### 1.6.5.4. PCA9685
 
 - TSSOP28
 - <https://www.nxp.com/docs/en/data-sheet/PCA9685.pdf>
@@ -262,7 +278,7 @@ I use:
 For development: PCA9685 module from ebay:
 ![PCA9685 Module](./doc/PCA9685-module.webp)
 
-#### 1.6.4.5. DC/DC
+#### 1.6.5.5. DC/DC
 
 - ESP needs up to 0.5A @3.3V (peak value). Average current consumption is 80mA.
 
@@ -272,13 +288,13 @@ I use 24V LED so some DC/DC modules from ebay/aliexpress are fine.
   - 4.5-28V to 0.8-20V and 3A (manually adjust it to 3.3V ad glue the trimmer)
   - <https://www.monolithicpower.com/en/documentview/productdocument/index/version/2/document_type/Datasheet/lang/en/sku/MP1584/document_id/204>
 
-### 1.6.5. Hardware 2 (external components)
+### 1.6.6. Hardware 2 (external components)
 
-#### 1.6.5.1. AC/DC
+#### 1.6.6.1. AC/DC
 
 I decidet to use a high efficient transformer from Enertex (<http://www.enertex.de/e-led-powersupply.html>) which is explicit designed for PWM applications. The only disadvantage is the non waterproof design.
 
-#### 1.6.5.2. LED stripes
+#### 1.6.6.2. LED stripes
 
 I use high CRI 24V LED stripes from <https://shop.led-studien.de/> with aluminium profiles as case and heatsink.
 

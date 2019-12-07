@@ -17,14 +17,29 @@
 
 #pragma once
 
+#include "Arduino.h"
+
+#include "logger.h"
+
 class OTA {
  public:
+  typedef void (*StartEndCallback)();
+  typedef void (*ProgressCallback)(double uploaded);
+
   OTA();
   bool begin();
   void handle();
 
   bool isUpdating();
 
+  void onStart(StartEndCallback cb);
+  void onEnd(StartEndCallback cb);
+  void onProgress(ProgressCallback cb);
+
  private:
+  Logger LOG;
   bool isUpdating_;
+  StartEndCallback startCallback_;
+  StartEndCallback endCallback_;
+  ProgressCallback progressCallback_;
 };
