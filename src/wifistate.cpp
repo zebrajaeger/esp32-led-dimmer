@@ -1,20 +1,19 @@
-/* 
+/*
  * This file is part of the ESP32-LED-Dimmer distribution (https://github.com/zebrajaeger/esp32-led-dimmer).
  * Copyright (c) 2019 Lars Brandt.
- * 
- * This program is free software: you can redistribute it and/or modify  
- * it under the terms of the GNU General Public License as published by  
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, version 3.
  *
- * This program is distributed in the hope that it will be useful, but 
- * WITHOUT ANY WARRANTY; without even the implied warranty of 
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  * General Public License for more details.
  *
- * You should have received a copy of the GNU General Public License 
+ * You should have received a copy of the GNU General Public License
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
-
 
 #include "wifistate.h"
 
@@ -54,30 +53,32 @@ const String WiFiState::statusNames_[9]{"WL_IDLE_STATUS",     "WL_NO_SSID_AVAIL"
 
 //------------------------------------------------------------------------------
 WiFiState::WiFiState()
-    : cbConnect_(NULL),
+    : LOG("WiFiState"),
+      cbConnect_(NULL),
       cbDisconnect_(NULL)
 //------------------------------------------------------------------------------
 {
-  WiFi.onEvent(std::bind(&WiFiState::onWifiEvent, this, std::placeholders::_1));
+  // WiFi.onEvent(std::bind(&WiFiState::onWifiEvent, this, std::placeholders::_1, this, std::placeholders::_2));
+  WiFi.onEvent(std::bind(&WiFiState::onWifiEvent, this, std::placeholders::_1, std::placeholders::_2));
 }
 
 //------------------------------------------------------------------------------
-void WiFiState::onWifiEvent(WiFiEvent_t event)
+void WiFiState::onWifiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
 //------------------------------------------------------------------------------
 {
-  Serial.printf("[WiFi] event: %d - %s\n", event, getEventName(event).c_str());
+  LOG.d("event: %d - %s", event, getEventName(event).c_str());
   switch (event) {
     case SYSTEM_EVENT_STA_GOT_IP:
-      Serial.println("[WiFi] connected");
+      LOG.d("connected");
       isConnected_ = true;
       if (cbConnect_ != NULL) {
         cbConnect_();
       }
       break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-      Serial.println("[WiFi] disconnected");
+      LOG.d("disconnected, Reason: %u", info.disconnected.reason);
       if (cbDisconnect_ != NULL) {
-        cbDisconnect_(isConnected_);
+        cbDisconnect_(isConnected_, info.disconnected.reason);
       }
       isConnected_ = false;
       break;
@@ -87,10 +88,10 @@ void WiFiState::onWifiEvent(WiFiEvent_t event)
 }
 
 //------------------------------------------------------------------------------
-void WiFiState::printStatus() const
+void WiFiState::printStatus()
 //------------------------------------------------------------------------------
 {
-  Serial.printf("[WiFi] Status: %d - %s\n", WiFi.status(), getStatusName(WiFi.status()).c_str());
+  LOG.i("Status: %d - %s", WiFi.status(), getStatusName(WiFi.status()).c_str());
 }
 
 //------------------------------------------------------------------------------

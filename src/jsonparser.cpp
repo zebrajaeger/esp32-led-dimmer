@@ -107,3 +107,14 @@ void JsonParser::toJson(JsonDocument& result, const State& state, const DeviceDa
     values.add(state.getChannelValue(i));
   }
 }
+
+//------------------------------------------------------------------------------
+void JsonParser::doc2String(const JsonDocument& doc, String& result, bool pretty) 
+//------------------------------------------------------------------------------
+{
+  if (pretty) {
+    serializeJsonPretty(doc, result);
+  } else {
+    serializeJson(doc, result);
+  }
+}

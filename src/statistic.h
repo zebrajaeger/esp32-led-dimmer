@@ -18,6 +18,8 @@
 
 #include <Arduino.h>
 
+#include "logger.h"
+
 class Statistic {
  public:
   Statistic();
@@ -25,6 +27,7 @@ class Statistic {
   void loop();
 
  private:
+  Logger LOG;
   void printStatistic();
   uint64_t lastMeasurementTime_;
   uint64_t loopCount_;

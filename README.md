@@ -79,18 +79,22 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 ## 1.5. TODO
 
+- [ ] Fix Setting Trouble (UI Update).
+- [ ] 'Homepage' and logo for embedded server, Diode and Poti or something like that.
+- [ ] PWA to change values in a convinient way.
+- [ ] Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
+- [ ] Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
 - [ ] Consider username and password on mqtt connection.
 - [ ] Implement mqtt port configuration.
-- [ ] The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. To be analyzed.
-- [ ] Source Code documentation.
 - [X] More documentation.
 - [X] Make PCB.
   - [X] With consider of jtag and reset + flash-button.
 - [X] Implement timer for periodic status updates.
   - [ ] And configuration of period time
 - [X] ~~~CSS tuning~~~. No access to the page generators CSS.
-- [ ] 'Homepage' and logo for embedded server
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
+- [ ] The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. To be analyzed.
+- [ ] Source Code documentation.
 
 ## 1.6. Documentation
 
@@ -158,16 +162,53 @@ Dictionary:
 
 There are three topics:
 
-- &lt;NodeName&gt;/alive
+- &lt;TopicPrefix&gt;/alive
   - Device publishes 'true' after connection
   - On timeout the last will message is 'false'
-- &lt;NodeName&gt;/state
-  - After startup and change settings the device will publish a json status. Example:
+- &lt;TopicPrefix&gt;/status
+  - After startup and change settings the device will publish a json status. Also every 5 min. Example (formated):
   ```json
-    {"f":1500,"d":{"c":0,"v":[1500,40,2048,99,2048,2048,2048,2048,2048,2048,2048,2048,2048,2048,2048,2048]}}
+  {
+    "device": {
+      "name": "esp32-30aea485fe54",
+      "ip": "192.168.178.60"
+    },
+    "light": {
+      "frequency": 1500,
+      "data": {
+        "channel": 0,
+        "value": [50,500,50,500,50,500,50,500,50,500,50,500,50,500,50,500]
+      }
+    }
+  }
   ```
-- &lt;NodeName&gt;/set
-  - Device does not publish anything but subscribes to this channel. Format is a subset of the status message. You can set only the frequency or only one or more channel values.
+- &lt;TopicPrefix&gt;/set (channel values)
+    - frequency is optional
+    - data is optional
+    - channel is the zero based index where the value starts
+    - value can be a number(0...4096), a string(0.0%...100.0%) or an array with number(s) and/or string(s)
+  ```json
+  {
+    "frequency": 1500,
+    "data": {
+      "channel": 0,
+      "value": [50,500,50,500,50,500,50,500,50,500,50,500,50,500,50,500]
+    }
+  }
+  ```
+- &lt;TopicPrefix&gt;/set (patterns)
+    - frequency is optional
+    - data is optional
+    - value can be a number(0...4096), a string(0.0%...100.0%) or an array with number(s) and/or string(s)
+  ```json
+  {
+    "frequency": 1500,
+    "data": {
+      "all"
+        "all": [0,500,4095]
+    }
+  }
+  ```
 
 ### 1.6.4. Hardware 1 / schematic
 

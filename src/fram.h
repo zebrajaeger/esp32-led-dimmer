@@ -20,6 +20,7 @@
 #include <Arduino.h>
 
 #include "fm24c04.h"
+#include "Logger.h"
 
 class FRAM {
  public:
@@ -39,9 +40,9 @@ class FRAM {
   uint16_t getChannelValue(uint8_t channel) const;
   void recalculateCRC();
   bool validateCRC();
-
-  void dump() const;
+  // void dump();
 
  private:
+  Logger LOG;
   FM24C04 fm24c04_;
 };

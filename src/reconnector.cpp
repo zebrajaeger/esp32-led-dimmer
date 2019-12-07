@@ -19,7 +19,8 @@
 
 //------------------------------------------------------------------------------
 Reconnector::Reconnector()
-    : configured_(false),
+    : LOG("Reconnector"),
+      configured_(false),
       delayMs_(2000),
       timer_(0),
       tryToConnectCB_(NULL),
@@ -145,7 +146,7 @@ void Reconnector::setState(ReconnectorState newState)
 //------------------------------------------------------------------------------
 {
   if (state_ != newState) {
-    Serial.printf("[Reconnector] state changed from '%s' to '%s'\n", getStateName(state_).c_str(), getStateName(newState).c_str());
+    LOG.d("state changed from '%s' to '%s'\n", getStateName(state_).c_str(), getStateName(newState).c_str());
     state_ = newState;
   }
 }

@@ -18,11 +18,13 @@
 #include <Arduino.h>
 
 #include <ESPmDNS.h>
+#include <Wifi.h>
 
 #include "config.h"
 #include "configserver.h"
 #include "fram.h"
 #include "jsonparser.h"
+#include "logger.h"
 #include "mqtt.h"
 #include "multitimer.h"
 #include "ota.h"
@@ -32,6 +34,8 @@
 #include "statistic.h"
 #include "utils.h"
 #include "wifistate.h"
+
+#include <rom/rtc.h>
 
 //------------------------------------------------------------------------------
 #define SOFTWARE_VERSION "1.0.1"
@@ -54,6 +58,63 @@ ConfigServer configServer;
 Reconnector reconnector;
 Statistic statistic;
 MultiTimer multiTimer;
+Logger LOG("App");
+
+// hack for WiFI connection, see https://github.com/espressif/arduino-esp32/issues/2501
+RTC_DATA_ATTR int bootCount;
+
+//------------------------------------------------------------------------------
+void publishState(bool publishOnMqtt, bool publishOnSerial, bool pretty)
+//------------------------------------------------------------------------------
+{
+  DynamicJsonDocument doc(1024);
+  JsonParser::DeviceData dd;
+  dd.name = config.getDeviceName();
+  dd.ip = WiFi.localIP().toString();
+
+  // Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+  // Serial.println(WiFi.getHostname());
+  // Serial.println(WiFi.getMode());
+  // Serial.println(WiFi.localIP().toString());
+  // Serial.println(WiFi.localIPv6().toString());
+  // Serial.println(WiFi.subnetMask());
+  // Serial.println(WiFi.macAddress());
+  // Serial.println("----- 1 -----");
+  // Serial.println(WiFi.getTxPower());
+  // Serial.println(WiFi.channel());
+  // Serial.println(WiFi.isConnected());
+  // Serial.println(WiFi.getAutoConnect());
+  // Serial.println(WiFi.getAutoReconnect());
+  // Serial.println("----- 2 -----");
+  // Serial.println(WiFi.gatewayIP().toString());
+  // Serial.println(WiFi.broadcastIP().toString());
+  // Serial.println(WiFi.networkID().toString());
+  // Serial.println(WiFi.subnetCIDR());
+  // Serial.println("----- 3 -----");
+  // Serial.println(WiFi.status());
+  // Serial.println(WiFi.SSID());
+  // Serial.println(WiFi.psk());
+  // Serial.println(WiFi.BSSIDstr());
+  // Serial.println("----- 4 -----");
+  // Serial.println(WiFi.softAPgetStationNum());
+  // Serial.println(WiFi.softAPIP().toString());
+  // Serial.println(WiFi.softAPBroadcastIP().toString());
+  // Serial.println(WiFi.softAPNetworkID().toString());
+  // Serial.println(WiFi.softAPIPv6().toString());
+  // Serial.println(WiFi.softAPgetHostname());
+  // Serial.println(WiFi.softAPmacAddress());
+  // Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
+
+  JsonParser::toJson(doc, state, dd);
+  String json;
+  JsonParser::doc2String(doc, json, pretty);
+  if (publishOnMqtt) {
+    mqtt.publish(config.getTopic() + "/status", json);
+  }
+  if (publishOnSerial) {
+    Serial.println(json);
+  }
+}
 
 //------------------------------------------------------------------------------
 void setFrequency(uint16_t frequency)
@@ -79,107 +140,137 @@ bool mqttConnect()
 {
   bool result = mqtt.connect(id, config.getTopic(), config.getMqttServer(), 1883, config.getUsername(), config.getPassword());
   if (result) {
-    Serial.printf("[APP] MQTT connected to '%s'\n", config.getMqttServer().c_str());
-    Serial.println("[APP] Topics are:");
-    Serial.printf("         '%s/alive' for online status\n", (config.getTopic().c_str()));
-    Serial.printf("         '%s/status' for data status\n", (config.getTopic().c_str()));
-    Serial.printf("         '%s/set' for seting data\n", (config.getTopic().c_str()));
+    publishState(true, false, false);
+    LOG.i("[APP] MQTT connected to '%s'", config.getMqttServer().c_str());
+    LOG.i("[APP] Topics are:");
+    LOG.i("         '%s/alive' for online status", (config.getTopic().c_str()));
+    LOG.i("         '%s/status' for data status", (config.getTopic().c_str()));
+    LOG.i("         '%s/set' for seting data", (config.getTopic().c_str()));
 
   } else {
-    Serial.printf("[APP] ERROR: Could not connect to MQTT server: '%s'\n", config.getMqttServer().c_str());
+    LOG.e("[APP] ERROR: Could not connect to MQTT server: '%s'", config.getMqttServer().c_str());
   }
   return result;
-}
-
-//------------------------------------------------------------------------------
-void publishState()
-//------------------------------------------------------------------------------
-{
-  DynamicJsonDocument doc(1024);
-  JsonParser::DeviceData dd;
-  dd.name = config.getDeviceName();
-  dd.ip = WiFi.localIP().toString();
-  JsonParser::toJson(doc, state, dd);
-  mqtt.publish(config.getTopic() + "/status", doc, false);
 }
 
 //------------------------------------------------------------------------------
 void setup()
 //------------------------------------------------------------------------------
 {
+  // LED
+  pinMode(2, OUTPUT);
+  digitalWrite(2, true);
+
   // Debug out
   Serial.begin(WIRE_SPEED);
-  // delay(1000);
-  Serial.println("+-----------------------+");
-  Serial.println("|        Booting        |");
-  Serial.println("+-----------------------+");
+
+  // Boot msg
+  LOG.i("+-----------------------+");
+  LOG.i("|        Booting        |");
+  LOG.i("+-----------------------+");
+  LOG.i("Bootcount: %u", bootCount);
+
+  // // Hack for Wifi Connection first
+  // if (rtc_get_reset_reason(0) == 1 || rtc_get_reset_reason(0) == 15 || rtc_get_reset_reason(1) == 1 || rtc_get_reset_reason(1) == 15) {
+  //   bootCount = 0;
+  // }
+  // bootCount++;
+  // // [Try to connect to WIFI here]
+  // if (WiFi.status() == WL_CONNECTED) {
+  //   LOG.i("Wifi connected, continue boot process");
+  // } else {
+  //   if (bootCount < 3) {
+  //     LOG.f("WiFI ...failed, REBOOT!");
+  //     // Do not use ESP.restart! This would reset the RTC memory.
+  //     esp_sleep_enable_timer_wakeup(10);
+  //     esp_deep_sleep_start();
+  //   } else {
+  //     LOG.e("WiFi ...finally failed.");
+  //     LOG.e("Opening unprotected access point...");
+  //   }
+  // }
 
   // ID
   id = Utils::createId();
-  Serial.println("[APP] ID: " + id);
+  LOG.i("ID: '%s'", id.c_str());
 
   // Config
   if (config.load()) {
-    Serial.println("[APP] Config file loaded successfully");
-    config.dump();
+    LOG.d("Config file loaded successfully");
+    // config.dump();
   } else {
-    Serial.println("[APP] Could not load config file from flash. Using default values");
+    LOG.w("Could not load config file from flash. Using default values");
     config.setDeviceName(id);
     config.setTopic(id);
   }
 
   // I2C Bus
-  Wire.begin(I2C_SDA, I2C_SCL, I2C_SPEED);
+  if (Wire.begin(I2C_SDA, I2C_SCL, I2C_SPEED)) {
+    LOG.i("Wire initialized");
+  } else {
+    LOG.e("Could not initialize Wire");
+  }
 
   // FRAM
   if (fram.begin()) {
-    Serial.println("[APP] Found I2C FRAM");
+    LOG.i("Found I2C FRAM");
     if (!fram.validateCRC()) {
-      Serial.println("[APP]     FRAM CRC check faild. Initialize...");
+      LOG.w("     FRAM CRC check faild. Initialize...");
       setFrequency(1500);
       for (uint8_t i = 0; i < 16; ++i) {
         setChannelValue(i, 2048);  // 50%
       }
       fram.recalculateCRC();
     } else {
-      Serial.println("[APP] FRAM CRC ok");
+      LOG.i("FRAM CRC ok");
       state.setFrequency(fram.getFrequency());
       for (uint8_t i = 0; i < 16; ++i) {
         state.setChannelValue(i, fram.getChannelValue(i));
       }
     }
-    fram.dump();
+    // fram.dump();
   } else {
-    Serial.println("[APP] I2C FRAM not identified ... check your connections?\r\n");
+    LOG.e("I2C FRAM not identified ... check your connections?");
   }
 
   // PWM
   if (pwm.begin()) {
-    Serial.println("[APP] Found I2C PWM(PCA9685)");
+    LOG.i("Found I2C PWM(PCA9685)");
     uint16_t f = fram.getFrequency();
-    Serial.printf("[APP] PWM f: %dHz\n", f);
+    LOG.i("PWM f: %dHz", f);
     pwm.setFrequency(f);
     for (uint8_t i = 0; i < 16; ++i) {
       uint16_t v = fram.getChannelValue(i);
-      Serial.printf("[APP] CH %d: %d\n", i, v);
+      LOG.i("CH %d: %d", i, v);
       pwm.setChannelValue(i, v);
     }
   } else {
-    Serial.println("[APP] ERROR I2C PWM(PCA9685) not found!");
+    LOG.e("ERROR I2C PWM(PCA9685) not found!");
   }
 
   // WIFI
   wifiState.onConnect([]() {
-    Serial.println("[APP] WiFi connected, IP address: " + WiFi.localIP().toString());
+    LOG.i("WiFi connected, IP address: '%s'", WiFi.localIP().toString().c_str());
     reconnector.onWifiConnected();
   });
-  wifiState.onDisconnect([](bool wasConnected) {
-    Serial.printf("[APP] WiFi lost connection. Was connected: '%s'\n", wasConnected ? "true" : "false");
+  wifiState.onDisconnect([](bool wasConnected, uint8_t reason) {
+    LOG.w("WiFi lost connection. Was connected: '%s'", wasConnected ? "true" : "false");
+
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // TODO check inferences with AutoConnect on devices with wrong password etc
+    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if (reason == 202) {  // AUTH FAILED
+      Serial.println("Connection failed, REBOOT/SLEEP!");
+      esp_sleep_enable_timer_wakeup(10);
+      esp_deep_sleep_start();
+      delay(100);
+    }
+
     if (wasConnected) {
       reconnector.onWifiDisconnected();
     }
   });
-  Serial.println("[APP] WiFiState initialized");
+  LOG.i("WiFiState initialized");
 
   // ConfigServer
   configServer.onDeviceSet([](DeviceData data) {
@@ -188,7 +279,7 @@ void setup()
     config.save();
     MDNS.end();
     if (MDNS.begin(id.c_str())) {
-      Serial.printf("[APP] mDNS Restartet with name: %s\n", id.c_str());
+      LOG.i("mDNS Restartet with name: %s", id.c_str());
     }
     mqttConnect();
   });
@@ -210,18 +301,18 @@ void setup()
     mqttData.userName = config.getUsername();
     mqttData.password = config.getPassword();
     configServer.setMqttData(mqttData);
-    Serial.printf("[APP] Configserver startet @ http://%s\n", id.c_str());
+    LOG.i("Configserver startet @ http://%s", id.c_str());
   }
 
   // OTA Update
   if (ota.begin()) {
-    Serial.println("[APP] OTA startet");
+    LOG.i("OTA startet");
   }
 
   // mDNS Server
   if (MDNS.begin(id.c_str())) {
     MDNS.addService("http", "tcp", 80);
-    Serial.printf("[APP] mDNS started with name: %s\n", id.c_str());
+    LOG.i("mDNS started with name: %s", id.c_str());
   }
 
   // Reconnector
@@ -229,44 +320,48 @@ void setup()
     reconnector.tryToConnect([]() { return mqttConnect(); });
     reconnector.tryToDisconnect([]() { return mqtt.disconnect(); });
     reconnector.isConnected([]() { return mqtt.isConnected(); });
-    Serial.println("[APP] reconnector started");
+    LOG.i("Reconnector started");
   }
 
   // MQTT
   if (mqtt.begin()) {
-    Serial.println("[APP] mqtt initialized");
+    LOG.i("Mqtt client initialized");
     mqtt.onData([](JsonDocument& doc) {
       JsonParser::parseChannelData(doc, [](uint16_t frequency) { setFrequency(frequency); },
                                    [](uint8_t channel, uint16_t value) { setChannelValue(channel, value); });
       fram.recalculateCRC();
-      fram.dump();
-      publishState();
+      // fram.dump();
+      publishState(true, false, false);
     });
     reconnector.onMQTTConfigured();
     if (wifiState.isConnected()) {
       mqttConnect();
     }
   } else {
-    Serial.println("[APP] ERROR: mqtt initialization failed");
+    LOG.e("ERROR: mqtt initialization failed");
   }
 
   // Statistic
   if (statistic.begin()) {
-    Serial.println("[APP] Statistic started.");
+    LOG.i("Statistic started.");
   } else {
-    Serial.println("[APP] ERROR: Statistic could not started.");
+    LOG.e("ERROR: Statistic could not started.");
   }
 
   // timer
   if (multiTimer.begin()) {
-    Serial.println("[APP] Initialize Timer.");
-    multiTimer.set("mqtt-status", 300000, []() { publishState(); });
+    LOG.i("Initialize Timer.");
+    multiTimer.set("mqtt-status", 300000, []() { publishState(true, false, false); });
+    multiTimer.set("serial-status", 60000, []() { publishState(false, true, true); });
   } else {
-    Serial.println("[APP] Timer initializing failed.");
+    LOG.e("[APP] Timer initializing failed.");
   }
 
+  // STATE output (only serial)
+  publishState(false, true, true);
+
   // DONE
-  Serial.println("[APP] Boot done, executing main loop.");
+  LOG.i("[APP] Boot done, executing main loop.");
 }
 
 //------------------------------------------------------------------------------

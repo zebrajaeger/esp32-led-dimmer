@@ -18,6 +18,12 @@
 #include "state.h"
 
 //------------------------------------------------------------------------------
+State::State()
+    : LOG("State")
+//------------------------------------------------------------------------------
+{}
+
+//------------------------------------------------------------------------------
 uint16_t State::getFrequency() const
 //------------------------------------------------------------------------------
 {
@@ -42,7 +48,7 @@ uint16_t State::getChannelValue(uint8_t channel) const
 void State::setChannelValue(uint8_t channel, uint16_t value)
 //------------------------------------------------------------------------------
 {
-  Serial.printf("STATE.setChannelValue %u -> %u\n", channel, value);
+  LOG.i("set [%u] = %u", channel, value);
   channels_[channel] = value;
 }
 
@@ -50,16 +56,8 @@ void State::setChannelValue(uint8_t channel, uint16_t value)
 void State::dump()
 //------------------------------------------------------------------------------
 {
-  Serial.printf("STATE.dump: f: %u; ", frequency_);
+  LOG.d("frequency: %u; ", frequency_);
   for (uint8_t i = 0; i < 16; ++i) {
-    Serial.printf("%u: %u; ", i, channels_[i]);
+    LOG.d("[%u]: %u; ", i, channels_[i]);
   }
-  Serial.println();
-}
-
-void State::toJson(const JsonDocument& doc) const {
-
-
-
-  
 }

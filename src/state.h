@@ -21,17 +21,22 @@
 
 #include <ArduinoJson.h>
 
+#include "logger.h"
+
 class State {
  public:
+  State();
   uint16_t getFrequency() const;
   void setFrequency(uint16_t frequency);
 
   uint16_t getChannelValue(uint8_t channel) const;
   void setChannelValue(uint8_t channel, uint16_t value);
   void dump();
-  virtual void toJson(const JsonDocument& doc) const;
 
  protected:
   uint16_t frequency_;
   uint16_t channels_[16];
+
+  private:
+  Logger LOG;
 };

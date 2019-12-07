@@ -23,8 +23,13 @@ extern const char configServerMenu[] asm("_binary_src_configserver_menu_json_sta
 
 //------------------------------------------------------------------------------
 ConfigServer::ConfigServer()
-    //------------------------------------------------------------------------------
-    : webServer_(), autoConnect_(webServer_), onDeviceSetCB_(NULL), onMqttSetCB_(NULL) {}
+    : LOG("ConfigServer"),
+      webServer_(),
+      autoConnect_(webServer_),
+      onDeviceSetCB_(NULL),
+      onMqttSetCB_(NULL)
+//------------------------------------------------------------------------------
+{}
 
 //------------------------------------------------------------------------------
 bool ConfigServer::begin(String& title)
@@ -43,18 +48,18 @@ bool ConfigServer::begin(String& title)
   // load config
   bool result = autoConnect_.load(configServerMenu);
   if (result) {
-    Serial.println("[ConfigServer] AutoConnect loaded.");
+    LOG.i("AutoConnect loaded.");
   } else {
-    Serial.println("[ConfigServer] ERROR: Autoconnect load failed.");
+    LOG.i("ERROR: Autoconnect load failed.");
   }
 
   // start
   if (result) {
     result = autoConnect_.begin();
     if (result) {
-      Serial.println("[ConfigServer] AutoConnect started.");
+      LOG.i("AutoConnect started.");
     } else {
-      Serial.println("[ConfigServer] ERROR: Autoconnect start failed.");
+      LOG.i("ERROR: Autoconnect start failed.");
     }
   }
 

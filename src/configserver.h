@@ -21,6 +21,8 @@
 
 #include <AutoConnect.h>
 
+#include "logger.h"
+
 class DeviceData {
  public:
   String deviceName;
@@ -53,6 +55,7 @@ class ConfigServer {
   void onMqttSet_();
   void redirect(const String toLocation);
 
+  Logger LOG;
   WebServer webServer_;
   AutoConnect autoConnect_;
   deviceSetFunction_t onDeviceSetCB_;

@@ -19,7 +19,8 @@
 
 //------------------------------------------------------------------------------
 FRAM::FRAM()
-    : fm24c04_()
+    : LOG("F-Ram"),
+    fm24c04_()
 //------------------------------------------------------------------------------
 {}
 
@@ -79,23 +80,23 @@ bool FRAM::validateCRC()
   return fm24c04_.validate(DATA_START_ADR, DATA_END_ADR, BASE_ADR_CRC);
 }
 
-//------------------------------------------------------------------------------
-void FRAM::dump() const
-//------------------------------------------------------------------------------
-{
-  Serial.println("[FRAM] dump");
-  Serial.printf("  from: %d to %d", DATA_START_ADR, COMPLETE_END_ADR);
-  bool first = true;
-  for (uint8_t i = DATA_START_ADR; i <= COMPLETE_END_ADR; ++i) {
-    if (first || i % 8 == 0) {
-      first = false;
-      Serial.printf("\n  0x%.4x  ", i);
-    } else {
-      if (i % 4 == 0) {
-        Serial.print(" ");
-      }
-    }
-    Serial.printf("%.2x ", fm24c04_.read8(i));
-  }
-  Serial.println();
-}
+// //------------------------------------------------------------------------------
+// void FRAM::dump()
+// //------------------------------------------------------------------------------
+// {
+//   LOG.d("[FRAM] dump");
+//   LOG.d("  from: %d to %d", DATA_START_ADR, COMPLETE_END_ADR);
+//   bool first = true;
+//   for (uint8_t i = DATA_START_ADR; i <= COMPLETE_END_ADR; ++i) {
+//     if (first || i % 8 == 0) {
+//       first = false;
+//       Serial.printf("\n  0x%.4x  ", i);
+//     } else {
+//       if (i % 4 == 0) {
+//         Serial.print(" ");
+//       }
+//     }
+//     Serial.printf("%.2x ", fm24c04_.read8(i));
+//   }
+//   Serial.println();
+// }

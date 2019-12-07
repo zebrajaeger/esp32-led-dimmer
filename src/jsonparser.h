@@ -40,6 +40,7 @@ class JsonParser {
 
   static void parseChannelData(JsonDocument& doc, void (*cb_f)(uint16_t value), void (*cb_c)(uint8_t channel, uint16_t value));
   static void toJson(JsonDocument& result, const State& state, const DeviceData& deviceData);
+  static void doc2String(const JsonDocument& doc, String& result, bool pretty);
 
  protected:
   static void parseChannelDataSection(const JsonObject& section, void (*cb_c)(uint8_t channel, uint16_t value));

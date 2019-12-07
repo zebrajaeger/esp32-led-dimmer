@@ -38,7 +38,8 @@ class Mqtt {
   bool disconnect();
   bool isConnected();
   void onData(SubscriptionResponseFunction_t f);
-  void publish(const String topic, const JsonDocument &doc, bool pretty);
+  void publish(const String& topic, const String& json);
+  void publish(const String& topic, const JsonDocument& doc, bool pretty);
 
  private:
   void callback_(char* topic, byte* payload, unsigned int length);

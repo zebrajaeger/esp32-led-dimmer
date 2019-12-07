@@ -19,6 +19,8 @@
 
 #include <Arduino.h>
 
+#include "logger.h"
+
 class Reconnector {
  public:
   typedef enum {
@@ -52,6 +54,7 @@ class Reconnector {
   bool onMqttDisconnectionRequest();
   bool onIsConnectedRequest();
 
+  Logger LOG;
   bool configured_;
   uint64_t delayMs_;
   uint64_t timer_;

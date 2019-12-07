@@ -16,6 +16,7 @@
  */
 
 #include "mqtt.h"
+#include "jsonparser.h"
 
 //------------------------------------------------------------------------------
 Mqtt::Mqtt()
@@ -99,14 +100,17 @@ void Mqtt::callback_(char* topic, byte* payload, unsigned int length)
 }
 
 //------------------------------------------------------------------------------
-void Mqtt::publish(const String topic, const JsonDocument &doc, bool pretty)
+void Mqtt::publish(const String& topic, const String& payload)
+//------------------------------------------------------------------------------
+{
+  pubSubClient_.publish(topic.c_str(), payload.c_str());
+}
+
+//------------------------------------------------------------------------------
+void Mqtt::publish(const String& topic, const JsonDocument& doc, bool pretty)
 //------------------------------------------------------------------------------
 {
   String json;
-  if (pretty) {
-    serializeJsonPretty(doc, json);
-  } else {
-    serializeJson(doc, json);
-  }
+  JsonParser::doc2String(doc, json, pretty);
   pubSubClient_.publish(topic.c_str(), json.c_str());
 }
