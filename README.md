@@ -95,21 +95,24 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 - [ ] Implement mqtt port configuration.
 - [X] More documentation.
 - [X] Implement timer for periodic status updates.
-  - [ ] And configuration of period time
-- [X] ~~~CSS tuning~~~. No access to the page generators CSS.
+  - [ ] And configuration of period time.
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
 - [ ] Source Code documentation.
+- Dimming between different light-values with given time.
+  - [ ] Linear (simple).
+  - [ ] S-curve or log or something like that what looks nice and smooth.
 
 #### 1.5.1.2. Bugs
 
 - [ ] Fix Setting Trouble (UI Update).
 - [ ] Consider username and password on mqtt connection.
-- The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. 
-  - [ ] Analyze
-  - [ ] Fix
+- The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state.
+  - [ ] Analyze.
+  - [ ] Fix.
 - Every 2nd boot Connection trouble analyze
-  - [X] Analyze
+  - [X] Analyze.
   - [X] Fix. Hack -> see https://github.com/espressif/arduino-esp32/issues/2501
+- [X] ~~~CSS tuning~~~. No access to the page generators CSS.
 
 ### 1.5.2. Hardware
 
@@ -121,10 +124,10 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 ### 1.6.1. Installation
 
-- Install platformio as described here: <https://platformio.org/install/ide?install=vscode>
+- Install platformio as described here: <https://platformio.org/install/ide?install=vscode>.
 - On the PIO Home tab within Visual Studio Code, go to the left toolbar and choose 'Platforms'
 - Install 'Expressif 32' platform
-- Clone this project into a directory of your choice or download it as a zip-file from here: <https://github.com/zebrajaeger/esp32-led-dimmer/archive/master.zip> (same link as 'Clone or download' -> 'Download ZIP')
+- Clone this project into a directory of your choice or download it as a zip-file from here: <https://github.com/zebrajaeger/esp32-led-dimmer/archive/master.zip> (same link as 'Clone or download' -> 'Download ZIP').
 - In the PIO Home tab choode 'Open Project' and choose the folder with the project files.
 
 - Edit the platformio.ini and change the line
