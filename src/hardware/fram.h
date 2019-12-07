@@ -19,15 +19,30 @@
 
 #include <Arduino.h>
 
-#include <FaBoPWM_PCA9685.h>
+#include "fm24c04.h"
+#include "util/logger.h"
 
-class PWM {
+class FRAM {
  public:
-  PWM();
+  static const uint8_t MAX_CHANNEL_COUNT = 16;
+  static const uint16_t DATA_START_ADR = 0;
+  static const uint16_t BASE_ADR_FREQUENCY = DATA_START_ADR;
+  static const uint16_t BASE_ADR_CHANNELVALUES = BASE_ADR_FREQUENCY + 2;
+  static const uint16_t BASE_ADR_CRC = BASE_ADR_CHANNELVALUES + (MAX_CHANNEL_COUNT * 2);
+  static const uint16_t DATA_END_ADR = BASE_ADR_CRC - 1;
+  static const uint16_t COMPLETE_END_ADR = BASE_ADR_CRC + 3;
+
+  FRAM();
   bool begin();
-  uint16_t setFrequency(uint16_t& frequency);
-  void setChannelValue(uint8_t& channel, uint16_t& value);
+  void setFrequency(uint16_t frequency);
+  uint16_t getFrequency() const;
+  void setChannelValue(uint8_t channel, uint16_t value);
+  uint16_t getChannelValue(uint8_t channel) const;
+  void recalculateCRC();
+  bool validateCRC();
+  // void dump();
 
  private:
-  FaBoPWM faboPWM_;
+  Logger LOG;
+  FM24C04 fm24c04_;
 };

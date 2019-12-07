@@ -19,7 +19,7 @@
 
 #include <Arduino.h>
 
-#include "logger.h"
+#include "util/logger.h"
 
 class Reconnector {
  public:

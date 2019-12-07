@@ -21,7 +21,7 @@
 
 #include <AutoConnect.h>
 
-#include "logger.h"
+#include "util/logger.h"
 
 class DeviceData {
  public:

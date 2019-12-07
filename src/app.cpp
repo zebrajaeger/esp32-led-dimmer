@@ -20,21 +20,26 @@
 #include <ESPmDNS.h>
 #include <Wifi.h>
 
-#include "config.h"
-#include "configserver.h"
-#include "fram.h"
-#include "jsonparser.h"
-#include "logger.h"
-#include "mqtt.h"
-#include "multitimer.h"
-#include "ota.h"
-#include "pwm.h"
-#include "reconnector.h"
 #include "state.h"
 #include "statistic.h"
-#include "statusled.h"
-#include "utils.h"
-#include "wifistate.h"
+
+#include "net/artnet.h"
+#include "net/mqtt.h"
+#include "net/ota.h"
+#include "net/reconnector.h"
+#include "net/wifistate.h"
+
+#include "config/config.h"
+#include "config/configserver.h"
+
+#include "hardware/fram.h"
+#include "hardware/pwm.h"
+#include "hardware/statusled.h"
+
+#include "util/jsonparser.h"
+#include "util/logger.h"
+#include "util/multitimer.h"
+#include "util/utils.h"
 
 //------------------------------------------------------------------------------
 #define SOFTWARE_VERSION "1.0.1"
@@ -58,6 +63,7 @@ Reconnector reconnector;
 Statistic statistic;
 MultiTimer multiTimer;
 StatusLed statusLed(2);
+Artnet artNet;
 Logger LOG("App");
 
 //------------------------------------------------------------------------------
@@ -181,6 +187,7 @@ void setup()
     LOG.w("Could not load config file from flash. Using default values");
     config.setDeviceName(id);
     config.setTopic(id);
+    config.setArtnetUniverse(666);
   }
 
   // I2C Bus
@@ -232,10 +239,8 @@ void setup()
     reconnector.onWifiConnected();
     statusLed.on();
   });
-
   wifiState.onDisconnect([](bool wasConnected, uint8_t reason) {
     LOG.w("WiFi lost connection. Was connected: '%s'", wasConnected ? "true" : "false");
-
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // TODO check inferences with AutoConnect on devices with wrong password etc
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -246,11 +251,9 @@ void setup()
       esp_deep_sleep_start();
       delay(100);
     }
-
     if (wasConnected) {
       reconnector.onWifiDisconnected();
     }
-
     statusLed.off();
   });
 
@@ -335,13 +338,44 @@ void setup()
     LOG.e("ERROR: Statistic could not started.");
   }
 
-  // timer
+  // Timer / Mqtt-Status, Seriaal-Status
   if (multiTimer.begin()) {
     LOG.i("Initialize Timer.");
     multiTimer.set("mqtt-status", 300000, []() { publishState(true, false, false); });
     multiTimer.set("serial-status", 60000, []() { publishState(false, true, true); });
   } else {
     LOG.e("Timer initializing failed.");
+  }
+
+  // Artnet
+  LOG.i("Initialize ArtNet with universe: '%u'", config.getArtnetUniverse());
+  if (artNet.begin(config.getArtnetUniverse())) {
+    LOG.i("Artnet initialized");
+    // PERM Data -> store like mqtt
+    artNet.onPermanentData([](uint16_t frequency, uint16_t* channelData, uint16_t length) {
+      setFrequency(frequency);
+      for (uint16_t i = 0; i < length && i < 16; ++i) {
+        setChannelValue(i, channelData[i]);
+      }
+      fram.recalculateCRC();
+      publishState(true, false, false);
+    });
+    // TEMP Data -> only change PWM and don't touch state
+    artNet.onTemporaryData([](uint16_t frequency, uint16_t* channelData, uint16_t length) {
+      pwm.setFrequency(frequency);
+      for (uint16_t i = 0; i < length && i < 16; ++i) {
+        pwm.setChannelValue(i, channelData[i]);
+      }
+    });
+    // RESET -> set pwm values from state
+    artNet.onResetData([&]() {
+      pwm.setFrequency(state.getFrequency());
+      for (uint16_t i = 0; i < 16; ++i) {
+        pwm.setChannelValue(i, state.getChannelValue(i));
+      }
+    });
+  } else {
+    LOG.i("Failed to initialize Artnet");
   }
 
   // STATE output (only serial)
@@ -355,14 +389,14 @@ void setup()
 void loop()
 //------------------------------------------------------------------------------
 {
-  ota.handle();
+  ota.loop();
   // speed up updates.
   if (!ota.isUpdating()) {
     mqtt.loop();
     configServer.loop();
     reconnector.loop();
     multiTimer.loop();
+    artNet.loop();
   }
   statistic.loop();
-  statusLed.loop();
 }

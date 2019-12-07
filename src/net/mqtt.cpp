@@ -16,7 +16,7 @@
  */
 
 #include "mqtt.h"
-#include "jsonparser.h"
+#include "util/jsonparser.h"
 
 //------------------------------------------------------------------------------
 Mqtt::Mqtt()
@@ -51,7 +51,10 @@ bool Mqtt::connect(const String& id, const String& topic, const String& server, 
   }
 
   pubSubClient_.setServer(server.c_str(), port);
-  pubSubClient_.setCallback(std::bind(&Mqtt::callback_, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3));
+
+  using namespace std;
+  using namespace std::placeholders;
+  pubSubClient_.setCallback(bind(&Mqtt::callback_, this, _1, _2, _3));
 
   if (pubSubClient_.connect(id.c_str(), (topic + "/alive").c_str(), 2, true, "false")) {
     pubSubClient_.publish((topic + "/alive").c_str(), "true");

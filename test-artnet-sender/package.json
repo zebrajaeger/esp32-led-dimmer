@@ -1,0 +1,15 @@
+{
+  "name": "test-artnet-sender",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "artnet": "1.4.0",
+    "broadcast-address": "1.0.2"
+  }
+}

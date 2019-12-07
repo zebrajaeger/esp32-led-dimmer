@@ -17,33 +17,29 @@
 
 #pragma once
 
-#include <WiFi.h>
+#include "Arduino.h"
 
-#include "logger.h"
+#include "util/logger.h"
 
-class WiFiState {
+class OTA {
  public:
-  typedef void (*CallbackConnect)();
-  typedef void (*CallbackDisconnect)(bool wasConnected, uint8_t reason);
+  typedef void (*StartEndCallback)();
+  typedef void (*ProgressCallback)(double uploaded);
 
-  WiFiState();
+  OTA();
+  bool begin();
+  void loop();
 
-  void onWifiEvent(WiFiEvent_t event, WiFiEventInfo_t info);
+  bool isUpdating();
 
-  bool isConnected() const;
-  void onConnect(CallbackConnect cb);
-  void onDisconnect(CallbackDisconnect cb);
-
-  const String& getEventName(WiFiEvent_t idx) const;
-  const String& getStatusName(wl_status_t status) const;
-  void printStatus();
+  void onStart(StartEndCallback cb);
+  void onEnd(StartEndCallback cb);
+  void onProgress(ProgressCallback cb);
 
  private:
   Logger LOG;
-  static const String eventNames_[28];
-  static const String statusNames_[9];
-
-  CallbackConnect cbConnect_;
-  CallbackDisconnect cbDisconnect_;
-  bool isConnected_ = false;
+  bool isUpdating_;
+  StartEndCallback startCallback_;
+  StartEndCallback endCallback_;
+  ProgressCallback progressCallback_;
 };

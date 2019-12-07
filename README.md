@@ -91,7 +91,9 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 - [ ] 'Homepage' and logo for embedded server, Diode and Poti or something like that.
 - [ ] PWA to change values in a convinient way.
 - [ ] Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
-- [ ] Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
+- Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
+  - [X] Implementation.
+  - [ ] Documentation.
 - [ ] Implement mqtt port configuration.
 - [X] More documentation.
 - [X] Implement timer for periodic status updates.

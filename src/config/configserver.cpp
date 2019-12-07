@@ -19,7 +19,7 @@
 
 #include <SPIFFS.h>
 
-extern const char configServerMenu[] asm("_binary_src_configserver_menu_json_start");
+extern const char configServerMenu[] asm("_binary_src_config_configserver_menu_json_start");
 
 //------------------------------------------------------------------------------
 ConfigServer::ConfigServer()

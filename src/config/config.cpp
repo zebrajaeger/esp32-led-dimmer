@@ -40,6 +40,9 @@ bool Config::fromJson(JsonDocument& doc)
   complete &= doc.containsKey(JSON_PASSWORD);
   password_ = doc[JSON_PASSWORD].as<const char*>();
 
+  complete &= doc.containsKey(JSON_ARTNET_UNIVERSE);
+  artnetUniverse_ = doc[JSON_ARTNET_UNIVERSE].as<uint16_t>();
+
   return complete;
 }
 
@@ -52,6 +55,7 @@ void Config::toJson(JsonDocument& doc)
   doc[JSON_MQTTSERVER] = mqttServer_;
   doc[JSON_USERNAME] = username_;
   doc[JSON_PASSWORD] = password_;
+  doc[JSON_ARTNET_UNIVERSE] = artnetUniverse_;
 }
 
 //------------------------------------------------------------------------------

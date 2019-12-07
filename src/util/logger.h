@@ -18,31 +18,32 @@
 #pragma once
 
 #include <Arduino.h>
+#include <Print.h>
+#include <chrono>
 
-#include "fm24c04.h"
-#include "Logger.h"
+#ifndef LOGGER_BUFFER_SIZE
+#define LOGGER_BUFFER_SIZE 1024
+#endif
 
-class FRAM {
+class Logger : public Print {
  public:
-  static const uint8_t MAX_CHANNEL_COUNT = 16;
-  static const uint16_t DATA_START_ADR = 0;
-  static const uint16_t BASE_ADR_FREQUENCY = DATA_START_ADR;
-  static const uint16_t BASE_ADR_CHANNELVALUES = BASE_ADR_FREQUENCY + 2;
-  static const uint16_t BASE_ADR_CRC = BASE_ADR_CHANNELVALUES + (MAX_CHANNEL_COUNT * 2);
-  static const uint16_t DATA_END_ADR = BASE_ADR_CRC - 1;
-  static const uint16_t COMPLETE_END_ADR = BASE_ADR_CRC + 3;
+  enum Loglevel_t { FATAL, ERROR, WARN, INFO, DEBUG, VERBOSE };
 
-  FRAM();
-  bool begin();
-  void setFrequency(uint16_t frequency);
-  uint16_t getFrequency() const;
-  void setChannelValue(uint8_t channel, uint16_t value);
-  uint16_t getChannelValue(uint8_t channel) const;
-  void recalculateCRC();
-  bool validateCRC();
-  // void dump();
+  Logger(const String& module);
+
+  const void f(const char* msg, ...);
+  const void e(const char* msg, ...);
+  const void w(const char* msg, ...);
+  const void i(const char* msg, ...);
+  const void d(const char* msg, ...);
+  const void v(const char* msg, ...);
+
+  virtual size_t write(uint8_t c);
 
  private:
-  Logger LOG;
-  FM24C04 fm24c04_;
+  const void printPrefix(Loglevel_t loglevel);
+
+  const String module_;
+  static const char* level_str_[6];
+  char buffer[LOGGER_BUFFER_SIZE];
 };

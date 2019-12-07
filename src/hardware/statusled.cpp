@@ -15,97 +15,75 @@
  * along with this program. If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "ota.h"
-
-#include <Arduino.h>
-#include <ArduinoOTA.h>
-#include <FS.h>
-#include <SPIFFS.h>
+#include "statusled.h"
 
 //------------------------------------------------------------------------------
-OTA::OTA()
-    : LOG("OTA"),
-      isUpdating_(false)
+StatusLed::StatusLed(uint8_t pin, uint8_t channel, double frequency)
+    : pin_(pin),
+      channel_(channel),
+      frequency_(frequency),
+      nextSwitch_(0),
+      status_(OFF)
 //------------------------------------------------------------------------------
 {}
 
 //------------------------------------------------------------------------------
-bool OTA::begin()
+bool StatusLed::begin()
 //------------------------------------------------------------------------------
 {
-  ArduinoOTA
-      .onStart([&]() {
-        if (startCallback_) {
-          startCallback_();
-        }
-
-        isUpdating_ = true;
-        String type;
-        if (ArduinoOTA.getCommand() == U_FLASH) {
-          type = "sketch";
-        } else {
-          type = "filesystem";
-          SPIFFS.end();
-        }
-        Serial.println("[OTA] Start updating " + type);
-      })
-      .onEnd([&]() {
-        if (endCallback_) {
-          endCallback_();
-        }
-
-        Serial.println("\nEnd");
-        isUpdating_ = false;
-      })
-      .onProgress([&](unsigned int progress, unsigned int total) {
-        if (progressCallback_) {
-          progressCallback_((double)progress/(double)total);
-        }
-
-        Serial.printf("[OTA] Progress: %u%%\r", (progress / (total / 100)));
-      })
-      .onError([=](ota_error_t error) {
-        isUpdating_ = false;
-        Serial.printf("[OTA] Error[%u]: ", error);
-        if (error == OTA_AUTH_ERROR)
-          Serial.println("[OTA] Auth Failed");
-        else if (error == OTA_BEGIN_ERROR)
-          Serial.println("[OTA] Begin Failed");
-        else if (error == OTA_CONNECT_ERROR)
-          Serial.println("[OTA] Connect Failed");
-        else if (error == OTA_RECEIVE_ERROR)
-          Serial.println("[OTA] Receive Failed");
-        else if (error == OTA_END_ERROR)
-          Serial.println("[OTA] End Failed");
-      });
-
-  ArduinoOTA.begin();
+  pinMode(pin_, OUTPUT);
+  ledcSetup(channel_, frequency_, 8);
+  ledcAttachPin(pin_, channel_);
   return true;
 }
 
 //------------------------------------------------------------------------------
-void OTA::handle()
+void StatusLed::on()
 //------------------------------------------------------------------------------
 {
-  ArduinoOTA.handle();
+  status_ = ON;
+  ledcWrite(channel_, 255);
 }
 
 //------------------------------------------------------------------------------
-bool OTA::isUpdating()
+void StatusLed::off()
 //------------------------------------------------------------------------------
 {
-  return isUpdating_;
+  status_ = OFF;
+  ledcWrite(channel_, 0);
 }
 
 //------------------------------------------------------------------------------
-void OTA::onStart(StartEndCallback cb)
+void StatusLed::blink(double duty)
 //------------------------------------------------------------------------------
-{}
+{
+  ledcWrite(channel_, (uint32_t)(duty * 255));
+}
+
 //------------------------------------------------------------------------------
-void OTA::onEnd(StartEndCallback cb)
+void StatusLed::setFrequency(double frequency)
 //------------------------------------------------------------------------------
-{}
+{
+  frequency_ = frequency;
+  ledcSetup(channel_, frequency_, 8);
+}
+
 //------------------------------------------------------------------------------
-void OTA::onProgress(ProgressCallback cb)
+double StatusLed::getFrequency() const
 //------------------------------------------------------------------------------
-{}
+{
+  return frequency_;
+}
+
+//------------------------------------------------------------------------------
+void StatusLed::alternate()
+//------------------------------------------------------------------------------
+{
+  if (status_ == BLINK_ON) {
+    status_ = BLINK_OFF;
+    digitalWrite(pin_, false);
+  } else if (status_ == BLINK_OFF) {
+    status_ = BLINK_ON;
+    digitalWrite(pin_, true);
+  }
+}

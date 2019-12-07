@@ -17,26 +17,24 @@
 
 #pragma once
 
-#include <Arduino.h>
+#include "Arduino.h"
 
-#include <ArduinoJson.h>
-
-#include "util/logger.h"
-
-class State {
+class StatusLed {
  public:
-  State();
-  uint16_t getFrequency() const;
-  void setFrequency(uint16_t frequency);
+  enum ledStatus_t { ON, OFF, BLINK_ON, BLINK_OFF };
+  StatusLed(uint8_t pin, uint8_t channel = 0, double frequency = 2);
+  bool begin();
+  void on();
+  void off();
+  void blink(double duty = 0.5);
+  void setFrequency(double frequency);
+  double getFrequency() const;
+  void alternate();
 
-  uint16_t getChannelValue(uint8_t channel) const;
-  void setChannelValue(uint8_t channel, uint16_t value);
-  void dump();
-
- protected:
-  uint16_t frequency_;
-  uint16_t channels_[16];
-
-  private:
-  Logger LOG;
+ private:
+  uint8_t pin_;
+  uint8_t channel_;
+  double frequency_;
+  uint64_t nextSwitch_;
+  ledStatus_t status_;
 };

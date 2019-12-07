@@ -35,7 +35,7 @@ bool PWM::begin()
 }
 
 //------------------------------------------------------------------------------
-uint16_t PWM::setFrequency(uint16_t& frequency)
+uint16_t PWM::setFrequency(uint16_t frequency)
 //------------------------------------------------------------------------------
 {
   if (frequency < 24) frequency = 24;
@@ -45,7 +45,7 @@ uint16_t PWM::setFrequency(uint16_t& frequency)
 }
 
 //------------------------------------------------------------------------------
-void PWM::setChannelValue(uint8_t& channel, uint16_t& value)
+void PWM::setChannelValue(uint8_t channel, uint16_t value)
 //------------------------------------------------------------------------------
 {
   if (channel > 15) channel = 15;

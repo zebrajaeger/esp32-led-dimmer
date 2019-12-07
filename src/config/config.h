@@ -28,6 +28,7 @@
 #define JSON_MQTTSERVER "mqttServer"
 #define JSON_USERNAME "userName"
 #define JSON_PASSWORD "password"
+#define JSON_ARTNET_UNIVERSE "artnetUniverse"
 
 /**
  * Load and Save Configuration Data to/from flash.
@@ -62,6 +63,9 @@ class Config {
   const String& getPassword() const { return password_; };
   void setPassword(String value) { password_ = value; };
 
+  const uint16_t getArtnetUniverse() const { return artnetUniverse_; };
+  void setArtnetUniverse(uint16_t value) { artnetUniverse_ = value; };
+
   bool fromJson(JsonDocument& doc);
   void toJson(JsonDocument& doc);
   void dump();
@@ -77,4 +81,5 @@ class Config {
   String mqttServer_;
   String username_;
   String password_;
+  uint16_t artnetUniverse_;
 };
