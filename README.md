@@ -88,7 +88,10 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 #### 1.5.1.1. Features
 
-- [ ] 'Homepage' and logo for embedded server, Diode and Poti or something like that.
+- 'Homepage' and logo for embedded server, Diode and Poti or something like that.
+  - [ ] logo.
+  - [ ] Webapp backend.
+  - [ ] Webapp frontend.
 - [ ] PWA to change values in a convinient way.
 - [ ] Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
 - Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
