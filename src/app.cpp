@@ -32,10 +32,9 @@
 #include "reconnector.h"
 #include "state.h"
 #include "statistic.h"
+#include "statusled.h"
 #include "utils.h"
 #include "wifistate.h"
-
-#include <rom/rtc.h>
 
 //------------------------------------------------------------------------------
 #define SOFTWARE_VERSION "1.0.1"
@@ -58,10 +57,8 @@ ConfigServer configServer;
 Reconnector reconnector;
 Statistic statistic;
 MultiTimer multiTimer;
+StatusLed statusLed(2);
 Logger LOG("App");
-
-// hack for WiFI connection, see https://github.com/espressif/arduino-esp32/issues/2501
-RTC_DATA_ATTR int bootCount;
 
 //------------------------------------------------------------------------------
 void publishState(bool publishOnMqtt, bool publishOnSerial, bool pretty)
@@ -157,38 +154,21 @@ bool mqttConnect()
 void setup()
 //------------------------------------------------------------------------------
 {
-  // LED
-  pinMode(2, OUTPUT);
-  digitalWrite(2, true);
-
   // Debug out
   Serial.begin(WIRE_SPEED);
+
+  // LED
+  if (statusLed.begin()) {
+    LOG.d("StatusLED started");
+  } else {
+    LOG.e("StatusLED failed");
+  }
+  statusLed.blink();
 
   // Boot msg
   LOG.i("+-----------------------+");
   LOG.i("|        Booting        |");
   LOG.i("+-----------------------+");
-  LOG.i("Bootcount: %u", bootCount);
-
-  // // Hack for Wifi Connection first
-  // if (rtc_get_reset_reason(0) == 1 || rtc_get_reset_reason(0) == 15 || rtc_get_reset_reason(1) == 1 || rtc_get_reset_reason(1) == 15) {
-  //   bootCount = 0;
-  // }
-  // bootCount++;
-  // // [Try to connect to WIFI here]
-  // if (WiFi.status() == WL_CONNECTED) {
-  //   LOG.i("Wifi connected, continue boot process");
-  // } else {
-  //   if (bootCount < 3) {
-  //     LOG.f("WiFI ...failed, REBOOT!");
-  //     // Do not use ESP.restart! This would reset the RTC memory.
-  //     esp_sleep_enable_timer_wakeup(10);
-  //     esp_deep_sleep_start();
-  //   } else {
-  //     LOG.e("WiFi ...finally failed.");
-  //     LOG.e("Opening unprotected access point...");
-  //   }
-  // }
 
   // ID
   id = Utils::createId();
@@ -197,7 +177,6 @@ void setup()
   // Config
   if (config.load()) {
     LOG.d("Config file loaded successfully");
-    // config.dump();
   } else {
     LOG.w("Could not load config file from flash. Using default values");
     config.setDeviceName(id);
@@ -228,7 +207,6 @@ void setup()
         state.setChannelValue(i, fram.getChannelValue(i));
       }
     }
-    // fram.dump();
   } else {
     LOG.e("I2C FRAM not identified ... check your connections?");
   }
@@ -252,13 +230,16 @@ void setup()
   wifiState.onConnect([]() {
     LOG.i("WiFi connected, IP address: '%s'", WiFi.localIP().toString().c_str());
     reconnector.onWifiConnected();
+    statusLed.on();
   });
+
   wifiState.onDisconnect([](bool wasConnected, uint8_t reason) {
     LOG.w("WiFi lost connection. Was connected: '%s'", wasConnected ? "true" : "false");
 
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // TODO check inferences with AutoConnect on devices with wrong password etc
     // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // hack for WiFI connection, see https://github.com/espressif/arduino-esp32/issues/2501
     if (reason == 202) {  // AUTH FAILED
       Serial.println("Connection failed, REBOOT/SLEEP!");
       esp_sleep_enable_timer_wakeup(10);
@@ -269,7 +250,10 @@ void setup()
     if (wasConnected) {
       reconnector.onWifiDisconnected();
     }
+
+    statusLed.off();
   });
+
   LOG.i("WiFiState initialized");
 
   // ConfigServer
@@ -354,14 +338,14 @@ void setup()
     multiTimer.set("mqtt-status", 300000, []() { publishState(true, false, false); });
     multiTimer.set("serial-status", 60000, []() { publishState(false, true, true); });
   } else {
-    LOG.e("[APP] Timer initializing failed.");
+    LOG.e("Timer initializing failed.");
   }
 
   // STATE output (only serial)
   publishState(false, true, true);
 
   // DONE
-  LOG.i("[APP] Boot done, executing main loop.");
+  LOG.i("Boot done, executing main loop.");
 }
 
 //------------------------------------------------------------------------------
@@ -377,4 +361,5 @@ void loop()
     multiTimer.loop();
   }
   statistic.loop();
+  statusLed.loop();
 }

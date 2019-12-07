@@ -93,8 +93,13 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [ ] And configuration of period time
 - [X] ~~~CSS tuning~~~. No access to the page generators CSS.
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
-- [ ] The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. To be analyzed.
+- The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state. 
+  - [ ] Analyze
+  - [ ] Fix
 - [ ] Source Code documentation.
+- Every 2nd boot Connection trouble analyze
+  - [X] Analyze
+  - [X] Fix. Hack -> see https://github.com/espressif/arduino-esp32/issues/2501
 
 ## 1.6. Documentation
 
