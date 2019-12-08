@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.js"],"names":["$","document","ready","console","log"],"mappings":"AAAAA,EAAGC,UAAWC,MAAM,WAChBC,QAAQC,IAAK","file":"index.js.gz","sourcesContent":["$( document ).ready(function() {\r\n    console.log( \"ready!\" );\r\n});"]}

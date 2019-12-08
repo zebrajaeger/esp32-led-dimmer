@@ -1,0 +1,1 @@
+{"version":3,"sources":["index.scss"],"names":[],"mappings":"AAAA,KACI,OAAQ,IAAA,MAAA,KACR,iBAAkB","file":"index.css.gz","sourcesContent":[".foo{\r\n    border: 1px solid black;\r\n    background-color: blueviolet;\r\n}"]}

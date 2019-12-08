@@ -88,8 +88,9 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 #### 1.5.1.1. Features
 
+- [ ] Add new Images.
 - 'Homepage' and logo for embedded server, Diode and Poti or something like that.
-  - [ ] logo.
+  - [ ] Logo.
   - [ ] Webapp backend.
   - [ ] Webapp frontend.
 - Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
@@ -99,7 +100,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [ ] Documentation.
 - MQTT
   - [ ] Port configuration.
-  - [ ] Send username and password on mqtt connection.
+  - [ ] Send username, password and port on mqtt connection.
 - Timer.
   - [X] Implement
   - [X] for periodic status updates.
@@ -119,6 +120,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [X] Analyze.
   - [X] Fix. Hack -> see https://github.com/espressif/arduino-esp32/issues/2501
 - [X] ~~~CSS tuning~~~. No access to the page generators CSS.
+- [ ] Image from an undestroyed ESP Node....
 
 ### 1.5.2. Hardware
 
