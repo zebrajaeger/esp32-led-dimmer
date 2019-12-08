@@ -1,1 +1,15 @@
-Hello
+<div class="sliders">
+  <app-channel-slider *ngFor="let sd of sliders; let i = index"
+    [channelNr]="sd.channel"
+    [value]="sd.value"
+    (valueChanged)="onSingleSliderValueChanged($event)"
+  ></app-channel-slider>
+</div>
+
+<div class="sliders">
+  <app-channel-slider
+    [channelNr]="allSliders.channel"
+    [value]="allSliders.value"
+    (valueChanged)="onAllSlidersChanged($event)"
+  ></app-channel-slider>
+</div>

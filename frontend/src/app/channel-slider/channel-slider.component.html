@@ -1,0 +1,12 @@
+<div class="slider-wrapper">
+  <mat-slider class="slider"
+              min="{{min}}"
+              max="{{max}}"
+              value="{{value}}"
+              (input)="onChange($event)"
+              tickInterval="auto"
+              thumbLabel
+              vertical
+  ></mat-slider>
+  <div class="slider-label">{{label}}</div>
+</div>
