@@ -241,9 +241,6 @@ void setup()
   });
   wifiState.onDisconnect([](bool wasConnected, uint8_t reason) {
     LOG.w("WiFi lost connection. Was connected: '%s'", wasConnected ? "true" : "false");
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    // TODO check inferences with AutoConnect on devices with wrong password etc
-    // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     // hack for WiFI connection, see https://github.com/espressif/arduino-esp32/issues/2501
     if (reason == 202) {  // AUTH FAILED
       Serial.println("Connection failed, REBOOT/SLEEP!");
@@ -261,6 +258,7 @@ void setup()
 
   // ConfigServer
   configServer.onDeviceSet([](DeviceData data) {
+    configServer.setDeviceData(data);
     id = data.deviceName;
     config.setDeviceName(data.deviceName);
     config.save();
@@ -271,6 +269,7 @@ void setup()
     mqttConnect();
   });
   configServer.onMqttSet([](MqttData& data) {
+    configServer.setMqttData(data);
     config.setTopic(data.topic);
     config.setMqttServer(data.server);
     config.setUsername(data.userName);

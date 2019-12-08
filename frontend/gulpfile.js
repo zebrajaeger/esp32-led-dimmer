@@ -1,3 +1,4 @@
+const fs = require('fs');
 const { src, dest, series, parallel, watch } = require('gulp');
 const htmlmin = require('gulp-htmlmin');
 const gzip = require('gulp-gzip');
@@ -12,6 +13,7 @@ const rename = require('gulp-rename');
 const gulpIF = require('gulp-if');
 const browserSync = require('browser-sync');
 const server = browserSync.create();
+const htmlreplace = require('gulp-html-replace');
 
 function jsTask() {
     return pipeline(
@@ -65,6 +67,17 @@ function vendorJsTaskUnCompressed() {
     );
 }
 
+function bigHtmlTask() {
+    // const jquery = fs.readFileSync('./dist/index.min.js');
+    // const js = fs.readFileSync('./dist/jquery.slim.min.js');
+    // const css = fs.readFileSync('./dist/index.min.css');
+    // return pipeline(
+    //     src('dist/index.html'),
+    //     htmlreplace({ js: [jquery, js] }),
+    //     dest('dist/index.all.html')
+    // );
+}
+
 function copyTask() {
     return pipeline(
         src('dist/*.html.gz', 'dist/*.css.gz', 'dist/*.js.gz'),
@@ -83,9 +96,9 @@ function reloadTask(cb) {
 function watchTask() {
     server.init({
         server: {
-          baseDir: 'dist',
+            baseDir: 'dist',
         }
-      });    watch('src/*.html', series(htmlTask, copyTask, reloadTask));
+    }); watch('src/*.html', series(htmlTask, copyTask, reloadTask));
     watch('src/*.js', series(jsTask, copyTask, reloadTask));
     watch('src/*.scss', series(cssTask, copyTask, reloadTask));
 }

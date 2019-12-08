@@ -112,7 +112,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 
 #### 1.5.1.2. Bugs
 
-- [ ] Fix Setting Trouble (UI Update).
+- [X] Fix Setting Trouble (UI Update).
 - The Reconnector sometimes makes MQTT reconnects but maybe the underlaying TCP-Stack sends a wrong state.
   - [ ] Analyze.
   - [ ] Fix.
