@@ -19,19 +19,8 @@
 
 #include <SPIFFS.h>
 
+#include "webapp/files.h"
 extern const char configServerMenu[] asm("_binary_src_config_configserver_menu_json_start");
-
-extern const char indexHtmlGZStart[] asm("_binary_src_webapp_index_html_gz_start");
-extern const char indexHtmlGZEnd[] asm("_binary_src_webapp_index_html_gz_end");
-
-extern const char indexCssGZStart[] asm("_binary_src_webapp_index_css_gz_start");
-extern const char indexCssGZEnd[] asm("_binary_src_webapp_index_css_gz_end");
-
-extern const char indexJsGZStart[] asm("_binary_src_webapp_index_js_gz_start");
-extern const char indexJsGZEnd[] asm("_binary_src_webapp_index_js_gz_end");
-
-extern const char jQueryGZStart[] asm("_binary_src_webapp_jquery_slim_js_gz_start");
-extern const char jQueryGZEnd[] asm("_binary_src_webapp_jquery_slim_js_gz_end");
 
 //------------------------------------------------------------------------------
 ConfigServer::ConfigServer()
@@ -47,23 +36,7 @@ ConfigServer::ConfigServer()
 bool ConfigServer::begin(String& title)
 //------------------------------------------------------------------------------
 {
-  //webServer_.on("/", [this]() { redirect("_ac"); });
-  webServer_.on("/", [this]() {
-    webServer_.sendHeader("Content-Encoding", "gzip");
-    webServer_.send_P(200, "text/html", indexHtmlGZStart, indexHtmlGZEnd - indexHtmlGZStart - 1);
-  });
-  webServer_.on("/index.css", [this]() {
-    webServer_.sendHeader("Content-Encoding", "gzip");
-    webServer_.send_P(200, "text/html", indexCssGZStart, indexCssGZEnd - indexCssGZStart - 1);
-  });
-  webServer_.on("/index.js", [this]() {
-    webServer_.sendHeader("Content-Encoding", "gzip");
-    webServer_.send_P(200, "text/html", indexJsGZStart, indexJsGZEnd - indexJsGZStart - 1);
-  });
-  webServer_.on("/jquery.js", [this]() {
-    webServer_.sendHeader("Content-Encoding", "gzip");
-    webServer_.send_P(200, "text/html", jQueryGZStart, jQueryGZEnd - jQueryGZStart - 1);
-  });
+  #include "webapp/webserver.h"
 
   webServer_.on("/device_set", std::bind(&ConfigServer::onDeviceSet_, this));
   webServer_.on("/mqtt_set", std::bind(&ConfigServer::onMqttSet_, this));
