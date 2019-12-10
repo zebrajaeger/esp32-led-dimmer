@@ -22,13 +22,13 @@ extern const char manifest_webmanifest_gz_end[] asm("_binary_src_webapp_manifest
 extern const char ngsw_worker_js_gz_start[] asm("_binary_src_webapp_ngsw_worker_js_gz_start");
 extern const char ngsw_worker_js_gz_end[] asm("_binary_src_webapp_ngsw_worker_js_gz_end");
 
-// polyfills.js.gz
-extern const char polyfills_js_gz_start[] asm("_binary_src_webapp_polyfills_js_gz_start");
-extern const char polyfills_js_gz_end[] asm("_binary_src_webapp_polyfills_js_gz_end");
-
 // ngsw.json.gz
 extern const char ngsw_json_gz_start[] asm("_binary_src_webapp_ngsw_json_gz_start");
 extern const char ngsw_json_gz_end[] asm("_binary_src_webapp_ngsw_json_gz_end");
+
+// polyfills.js.gz
+extern const char polyfills_js_gz_start[] asm("_binary_src_webapp_polyfills_js_gz_start");
+extern const char polyfills_js_gz_end[] asm("_binary_src_webapp_polyfills_js_gz_end");
 
 // runtime.js.gz
 extern const char runtime_js_gz_start[] asm("_binary_src_webapp_runtime_js_gz_start");
@@ -62,6 +62,10 @@ extern const char assets_icons_icon_192x192_png_gz_end[] asm("_binary_src_webapp
 extern const char assets_icons_icon_152x152_png_gz_start[] asm("_binary_src_webapp_assets_icons_icon_152x152_png_gz_start");
 extern const char assets_icons_icon_152x152_png_gz_end[] asm("_binary_src_webapp_assets_icons_icon_152x152_png_gz_end");
 
+// assets\icons\icon-384x384.png.gz
+extern const char assets_icons_icon_384x384_png_gz_start[] asm("_binary_src_webapp_assets_icons_icon_384x384_png_gz_start");
+extern const char assets_icons_icon_384x384_png_gz_end[] asm("_binary_src_webapp_assets_icons_icon_384x384_png_gz_end");
+
 // assets\icons\icon-512x512.png.gz
 extern const char assets_icons_icon_512x512_png_gz_start[] asm("_binary_src_webapp_assets_icons_icon_512x512_png_gz_start");
 extern const char assets_icons_icon_512x512_png_gz_end[] asm("_binary_src_webapp_assets_icons_icon_512x512_png_gz_end");
@@ -69,10 +73,6 @@ extern const char assets_icons_icon_512x512_png_gz_end[] asm("_binary_src_webapp
 // assets\icons\icon-96x96.png.gz
 extern const char assets_icons_icon_96x96_png_gz_start[] asm("_binary_src_webapp_assets_icons_icon_96x96_png_gz_start");
 extern const char assets_icons_icon_96x96_png_gz_end[] asm("_binary_src_webapp_assets_icons_icon_96x96_png_gz_end");
-
-// assets\icons\icon-384x384.png.gz
-extern const char assets_icons_icon_384x384_png_gz_start[] asm("_binary_src_webapp_assets_icons_icon_384x384_png_gz_start");
-extern const char assets_icons_icon_384x384_png_gz_end[] asm("_binary_src_webapp_assets_icons_icon_384x384_png_gz_end");
 
 // assets\icons\icon-72x72.png.gz
 extern const char assets_icons_icon_72x72_png_gz_start[] asm("_binary_src_webapp_assets_icons_icon_72x72_png_gz_start");

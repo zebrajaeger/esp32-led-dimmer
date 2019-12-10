@@ -65,7 +65,7 @@ function fileListTask(cb) {
       fileHContent += 'extern const char ' + endSymbol + '[] asm("_binary_src_webapp_' + endSymbol + '");\n\n';
 
       // webserver.h
-      webserverHContent += 'webServer_.on("/' + name + '", [this]() {\n';
+      webserverHContent += 'webServer_.on("/' + (name==='index.html' ? '' : name) + '", [this]() {\n';
       webserverHContent += '  webServer_.sendHeader("Content-Encoding", "gzip");\n';
       webserverHContent += '  webServer_.send_P(200, "' + mime + '", ' + startSymbol + ', ' + endSymbol + ' - ' + startSymbol + ' - 1);\n';
       webserverHContent += '});\n\n';
@@ -76,6 +76,7 @@ function fileListTask(cb) {
     fs.writeFileSync(symbolFilePath, fileHContent);
     fs.writeFileSync(webserverFilePath, webserverHContent);
     replaceFilesInPlatfomrIO(platformIoFiles);
+    
     cb();
   });
 }

@@ -7,7 +7,7 @@ webServer_.on("/favicon.ico", [this]() {
   webServer_.send_P(200, "image/vnd.microsoft.icon", favicon_ico_gz_start, favicon_ico_gz_end - favicon_ico_gz_start - 1);
 });
 
-webServer_.on("/index.html", [this]() {
+webServer_.on("/", [this]() {
   webServer_.sendHeader("Content-Encoding", "gzip");
   webServer_.send_P(200, "text/html", index_html_gz_start, index_html_gz_end - index_html_gz_start - 1);
 });
@@ -27,14 +27,14 @@ webServer_.on("/ngsw-worker.js", [this]() {
   webServer_.send_P(200, "application/javascript", ngsw_worker_js_gz_start, ngsw_worker_js_gz_end - ngsw_worker_js_gz_start - 1);
 });
 
-webServer_.on("/polyfills.js", [this]() {
-  webServer_.sendHeader("Content-Encoding", "gzip");
-  webServer_.send_P(200, "application/javascript", polyfills_js_gz_start, polyfills_js_gz_end - polyfills_js_gz_start - 1);
-});
-
 webServer_.on("/ngsw.json", [this]() {
   webServer_.sendHeader("Content-Encoding", "gzip");
   webServer_.send_P(200, "application/json", ngsw_json_gz_start, ngsw_json_gz_end - ngsw_json_gz_start - 1);
+});
+
+webServer_.on("/polyfills.js", [this]() {
+  webServer_.sendHeader("Content-Encoding", "gzip");
+  webServer_.send_P(200, "application/javascript", polyfills_js_gz_start, polyfills_js_gz_end - polyfills_js_gz_start - 1);
 });
 
 webServer_.on("/runtime.js", [this]() {
@@ -77,6 +77,11 @@ webServer_.on("/icon-152x152.png", [this]() {
   webServer_.send_P(200, "image/png", assets_icons_icon_152x152_png_gz_start, assets_icons_icon_152x152_png_gz_end - assets_icons_icon_152x152_png_gz_start - 1);
 });
 
+webServer_.on("/icon-384x384.png", [this]() {
+  webServer_.sendHeader("Content-Encoding", "gzip");
+  webServer_.send_P(200, "image/png", assets_icons_icon_384x384_png_gz_start, assets_icons_icon_384x384_png_gz_end - assets_icons_icon_384x384_png_gz_start - 1);
+});
+
 webServer_.on("/icon-512x512.png", [this]() {
   webServer_.sendHeader("Content-Encoding", "gzip");
   webServer_.send_P(200, "image/png", assets_icons_icon_512x512_png_gz_start, assets_icons_icon_512x512_png_gz_end - assets_icons_icon_512x512_png_gz_start - 1);
@@ -85,11 +90,6 @@ webServer_.on("/icon-512x512.png", [this]() {
 webServer_.on("/icon-96x96.png", [this]() {
   webServer_.sendHeader("Content-Encoding", "gzip");
   webServer_.send_P(200, "image/png", assets_icons_icon_96x96_png_gz_start, assets_icons_icon_96x96_png_gz_end - assets_icons_icon_96x96_png_gz_start - 1);
-});
-
-webServer_.on("/icon-384x384.png", [this]() {
-  webServer_.sendHeader("Content-Encoding", "gzip");
-  webServer_.send_P(200, "image/png", assets_icons_icon_384x384_png_gz_start, assets_icons_icon_384x384_png_gz_end - assets_icons_icon_384x384_png_gz_start - 1);
 });
 
 webServer_.on("/icon-72x72.png", [this]() {
