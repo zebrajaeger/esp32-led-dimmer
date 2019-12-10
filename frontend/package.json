@@ -7,7 +7,8 @@
     "build": "ng build --prod=true --aot=true --buildOptimizer=true --vendorChunk=false",
     "test": "ng test",
     "lint": "ng lint",
-    "e2e": "ng e2e"
+    "e2e": "ng e2e",
+    "copy": "gulp"
   },
   "private": true,
   "dependencies": {
