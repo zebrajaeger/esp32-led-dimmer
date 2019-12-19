@@ -16,6 +16,6 @@ export class ChannelSliderComponent {
   @Input() channelNr = 0;
 
   onChange(e: MatSliderChange) {
-    this.valueChanged.emit(new SliderData(this.channelNr, e.value));
+    this.valueChanged.emit(new SliderData(this.channelNr, e.value, this.label));
   }
 }

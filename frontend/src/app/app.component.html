@@ -1,15 +1,45 @@
 <div class="sliders">
-  <app-channel-slider *ngFor="let sd of sliders; let i = index"
-    [channelNr]="sd.channel"
-    [value]="sd.value"
-    (valueChanged)="onSingleSliderValueChanged($event)"
-  ></app-channel-slider>
+  <div class="slider-wrapper" *ngFor="let sd of sliders; let i = index">
+    <mat-slider class="slider" min="0" max="4095"
+                value="{{sd.value}}"
+                (input)="onSingleSliderValueChanged($event)"
+                thumbLabel
+                vertical
+    ></mat-slider>
+    <div class="slider-label">{{sd.label}}</div>
+  </div>
 </div>
 
 <div class="sliders">
-  <app-channel-slider
-    [channelNr]="allSliders.channel"
-    [value]="allSliders.value"
-    (valueChanged)="onAllSlidersChanged($event)"
-  ></app-channel-slider>
+
+  <div class="slider-wrapper">
+    <mat-slider class="slider" min="0" max="4095"
+                value="{{allSliders.value}}"
+                (input)="onAllSlidersChanged($event)"
+                thumbLabel
+                vertical
+    ></mat-slider>
+    <div class="slider-label">{{allSliders.label}}</div>
+  </div>
+
+  <div class="slider-wrapper">
+    <mat-slider class="slider" min="0" max="4095"
+                value="{{every1Of2NdSlider.value}}"
+                (input)="on1Of2SliderValueChanged($event)"
+                thumbLabel
+                vertical
+    ></mat-slider>
+    <div class="slider-label">{{every1Of2NdSlider.label}}</div>
+  </div>
+
+  <div class="slider-wrapper">
+    <mat-slider class="slider" min="0" max="4095"
+                value="{{every2Of2NdSlider.value}}"
+                (input)="on2Of2SliderValueChanged($event)"
+                thumbLabel
+                vertical
+    ></mat-slider>
+    <div class="slider-label">{{every2Of2NdSlider.label}}</div>
+  </div>
+
 </div>

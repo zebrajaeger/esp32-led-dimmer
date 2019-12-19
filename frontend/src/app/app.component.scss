@@ -1,7 +1,21 @@
-.sliders{
+.sliders {
   margin: 10px;
-  display:flex;
+  display: inline-flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  box-shadow: 10px 11px 14px 8px rgba(0,0,0,0.57);
+  box-shadow: 5px 5px 8px 0 rgba(0, 0, 0, 0.4);
+}
+
+.slider {
+  height: 200px;
+  width: 50px;
+}
+
+.slider-label {
+  text-align: center;
+}
+
+.slider-wrapper {
+  border: 1px solid rgb(0, 0, 0, 0.1);
+  padding: 5px;
 }
