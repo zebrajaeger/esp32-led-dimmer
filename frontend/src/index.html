@@ -1,15 +1,79 @@
-<html>
+<html manifest="appcache.manifest">
 
 <head>
     <title>ESP32-Led-Dimmer</title>
-    <link rel="stylesheet" type="text/css" href="index.css">
-    <script src="jquery.js"></script>
-    <script src="index.js"></script>
+    <link rel="stylesheet" type="text/css" href="vendor.css">
+    <link rel="stylesheet" type="text/css" href="app.css">
+    <script src="vendor.js"></script>
+    <script src="app.js"></script>
 </head>
 
-
 <body>
-    <div class="foo">Hello World!<div>
-</body>
+<section class="sliders channels">
+    <div class="slider-wrapper single-channel odd-channel channel-00">
+        <input type="range">
+        <div class="label">CH1</div>
+    </div>
 
+    <div class="slider-wrapper single-channel even-channel channel-01">
+        <input type="range">
+        <div class="label">CH2</div>
+    </div>
+
+    <div class="slider-wrapper single-channel odd-channel channel-02">
+        <input type="range">
+        <div class="label">CH3</div>
+    </div>
+
+    <div class="slider-wrapper single-channel even-channel channel-03">
+        <input type="range">
+        <div class="label">CH4</div>
+    </div>
+
+    <div class="slider-wrapper single-channel odd-channel channel-04">
+        <input type="range">
+        <div class="label">CH5</div>
+    </div>
+
+    <div class="slider-wrapper single-channel even-channel channel-05">
+        <input type="range">
+        <div class="label">CH6</div>
+    </div>
+
+    <div class="slider-wrapper single-channel odd-channel channel-06">
+        <input type="range">
+        <div class="label">CH7</div>
+    </div>
+
+    <div class="slider-wrapper single-channel even-channel hannel-07">
+        <input type="range">
+        <div class="label">CH8</div>
+    </div>
+
+    <div class="slider-wrapper single-channel odd-channel channel-08">
+        <input type="range">
+        <div class="label">CH9</div>
+    </div>
+
+    <div class="slider-wrapper single-channel even-channel channel-09">
+        <input type="range">
+        <div class="label">CH10</div>
+    </div>
+</section>
+
+<section class="sliders meta">
+    <div class="slider-wrapper meta-channel channel-odd">
+        <input type="range">
+        <div class="label">ODD</div>
+    </div>
+    <div class="slider-wrapper meta-channel channel-even">
+        <input type="range">
+        <div class="label">EVEN</div>
+    </div>
+    <div class="slider-wrapper meta-channel channel-all">
+        <input type="range">
+        <div class="label">ALL</div>
+    </div>
+</section>
+</body>
 </html>

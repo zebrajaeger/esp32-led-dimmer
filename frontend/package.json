@@ -4,25 +4,33 @@
   "description": "Frontend for ESP32-Led-Dimmer",
   "main": "index.js",
   "scripts": {
-    "build": "gulp"
+    "build": "gulp",
+    "start": "gulp develop"
   },
   "author": "Lars Brandt",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
+    "jquery.rsSliderLens": "^1.0.5"
+  },
+  "devDependencies": {
     "browser-sync": "^2.26.7",
     "del": "^5.1.0",
     "gulp": "4.0.2",
+    "gulp-clean": "^0.4.0",
     "gulp-clean-css": "^4.2.0",
+    "gulp-concat": "^2.6.1",
     "gulp-gzip": "^1.4.2",
     "gulp-html-replace": "^1.6.2",
     "gulp-htmlmin": "^5.0.1",
-    "gulp-if": "^3.0.0",
     "gulp-livereload": "^4.0.2",
-    "gulp-rename": "^2.0.0",
+    "gulp-manifest3": "^0.1.2",
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
-    "gulp-uglify": "^3.0.2",
+    "gulp-terser": "^1.2.0",
+    "merge-stream": "^2.0.0",
+    "mime-types": "^2.1.25",
     "node-sass": "^4.13.0",
-    "readable-stream": "^3.4.0"
+    "readable-stream": "^3.4.0",
+    "recursive-readdir": "^2.2.2"
   }
 }

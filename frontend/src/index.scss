@@ -1,4 +1,41 @@
-.foo{
-    border: 1px solid black;
-    background-color: chartreuse;
+
+body {
+  background-color: #d1d1d1;
+}
+
+input {
+  width: 40px;
+  height: 300px;
+}
+
+section {
+  display: inline-block;
+  padding: 5px;
+  margin:2px;
+  background-color: #202020;
+  box-shadow: 5px 5px 5px 0px rgba(0,0,0,0.33);
+}
+
+.sliderlens {
+  border: 1px solid gray;
+  margin: 0 10px;
+}
+
+.range, // range outside the handle
+.handle .range { // range inside the handle
+  background: linear-gradient(to top, black 0%, yellow 80%, white 100%);
+}
+
+.slider-wrapper {
+  display: inline-block;
+  padding: 0 5px;
+  margin: 0;
+
+  .label {
+    width:40px;
+    text-align: center;
+    margin: 5px 13px;
+    color: #eeeeee;
+    font-family: "Arial";
+  }
 }
