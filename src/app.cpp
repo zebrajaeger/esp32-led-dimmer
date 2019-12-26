@@ -27,6 +27,7 @@
 #include "net/mqtt.h"
 #include "net/ota.h"
 #include "net/reconnector.h"
+#include "net/websocket.h"
 #include "net/wifistate.h"
 
 #include "config/config.h"
@@ -65,6 +66,9 @@ MultiTimer multiTimer;
 StatusLed statusLed(2);
 Artnet artNet;
 Logger LOG("App");
+Websocket websocketServer;
+
+void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) { Serial.println("XXXX"); }
 
 //------------------------------------------------------------------------------
 void publishState(bool publishOnMqtt, bool publishOnSerial, bool pretty)
@@ -74,39 +78,6 @@ void publishState(bool publishOnMqtt, bool publishOnSerial, bool pretty)
   JsonParser::DeviceData dd;
   dd.name = config.getDeviceName();
   dd.ip = WiFi.localIP().toString();
-
-  // Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-  // Serial.println(WiFi.getHostname());
-  // Serial.println(WiFi.getMode());
-  // Serial.println(WiFi.localIP().toString());
-  // Serial.println(WiFi.localIPv6().toString());
-  // Serial.println(WiFi.subnetMask());
-  // Serial.println(WiFi.macAddress());
-  // Serial.println("----- 1 -----");
-  // Serial.println(WiFi.getTxPower());
-  // Serial.println(WiFi.channel());
-  // Serial.println(WiFi.isConnected());
-  // Serial.println(WiFi.getAutoConnect());
-  // Serial.println(WiFi.getAutoReconnect());
-  // Serial.println("----- 2 -----");
-  // Serial.println(WiFi.gatewayIP().toString());
-  // Serial.println(WiFi.broadcastIP().toString());
-  // Serial.println(WiFi.networkID().toString());
-  // Serial.println(WiFi.subnetCIDR());
-  // Serial.println("----- 3 -----");
-  // Serial.println(WiFi.status());
-  // Serial.println(WiFi.SSID());
-  // Serial.println(WiFi.psk());
-  // Serial.println(WiFi.BSSIDstr());
-  // Serial.println("----- 4 -----");
-  // Serial.println(WiFi.softAPgetStationNum());
-  // Serial.println(WiFi.softAPIP().toString());
-  // Serial.println(WiFi.softAPBroadcastIP().toString());
-  // Serial.println(WiFi.softAPNetworkID().toString());
-  // Serial.println(WiFi.softAPIPv6().toString());
-  // Serial.println(WiFi.softAPgetHostname());
-  // Serial.println(WiFi.softAPmacAddress());
-  // Serial.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!");
 
   JsonParser::toJson(doc, state, dd);
   String json;
@@ -149,7 +120,6 @@ bool mqttConnect()
     LOG.i("         '%s/alive' for online status", (config.getTopic().c_str()));
     LOG.i("         '%s/status' for data status", (config.getTopic().c_str()));
     LOG.i("         '%s/set' for seting data", (config.getTopic().c_str()));
-
   } else {
     LOG.e("[APP] ERROR: Could not connect to MQTT server: '%s'", config.getMqttServer().c_str());
   }
@@ -337,13 +307,40 @@ void setup()
     LOG.e("ERROR: Statistic could not started.");
   }
 
-  // Timer / Mqtt-Status, Seriaal-Status
+  // Timer / Mqtt-Status, Serial-Status
   if (multiTimer.begin()) {
     LOG.i("Initialize Timer.");
     multiTimer.set("mqtt-status", 300000, []() { publishState(true, false, false); });
     multiTimer.set("serial-status", 60000, []() { publishState(false, true, true); });
   } else {
     LOG.e("Timer initializing failed.");
+  }
+
+  // Websocket
+  LOG.i("Initialize Websocket server.");
+  if (websocketServer.begin(81)) {
+    websocketServer.onStatusRequest([](uint8_t clientId) {
+      String json;
+      String msgId = "";
+      JsonParser::channelDataToJsonArray(json, msgId, state);
+      websocketServer.send(clientId, json);
+    });
+    websocketServer.onData([](const uint8_t clientId, const String& json) {
+      String msgId;
+      uint16_t channelData[16];
+      if (JsonParser::channelDataFromJsonArray(json, msgId, channelData)) {
+        for (uint8_t i = 0; i < 16; ++i) {
+          // set only if different (because writing to FRAM and PWM needs time)
+          if (state.getChannelValue(i) != channelData[i]) {
+            setChannelValue(i, channelData[i]);
+          }
+        }
+      }
+      String jsonTemp;
+      JsonParser::channelDataResponse(jsonTemp, msgId);
+      websocketServer.send(clientId, jsonTemp);
+    });
+    LOG.i("Websocket server initialized");
   }
 
   // Artnet
@@ -396,6 +393,7 @@ void loop()
     reconnector.loop();
     multiTimer.loop();
     artNet.loop();
+    websocketServer.loop();
   }
   statistic.loop();
 }

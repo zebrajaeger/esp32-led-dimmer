@@ -5,15 +5,15 @@
   "main": "index.js",
   "scripts": {
     "build": "gulp",
-    "start": "gulp develop"
+    "develop": "gulp develop"
   },
   "author": "Lars Brandt",
   "license": "LGPL-3.0-or-later",
   "dependencies": {
-    "jquery.rsSliderLens": "^1.0.5"
   },
   "devDependencies": {
     "browser-sync": "^2.26.7",
+    "commander": "^4.0.1",
     "del": "^5.1.0",
     "gulp": "4.0.2",
     "gulp-clean": "^0.4.0",
@@ -24,9 +24,11 @@
     "gulp-htmlmin": "^5.0.1",
     "gulp-livereload": "^4.0.2",
     "gulp-manifest3": "^0.1.2",
+    "gulp-plumber": "^1.2.1",
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-terser": "^1.2.0",
+    "http-proxy": "^1.18.0",
     "merge-stream": "^2.0.0",
     "mime-types": "^2.1.25",
     "node-sass": "^4.13.0",

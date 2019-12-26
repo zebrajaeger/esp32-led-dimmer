@@ -91,8 +91,10 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
 - [ ] Add new Images.
 - 'Homepage' and logo for embedded server, Diode and Poti or something like that.
   - [ ] Logo.
-  - [ ] Webapp backend.
-  - [ ] Webapp frontend.
+  - [X] Webapp backend.
+  - [X] Webapp frontend.
+  - [ ] Connection indicator.
+  - [ ] Documentation (screenshots).
 - Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
 - Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
   - [X] Implementation.
@@ -102,13 +104,13 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [ ] Port configuration.
   - [ ] Send username, password and port on mqtt connection.
 - Timer.
-  - [X] Implement
+  - [X] Implementation.
   - [X] for periodic status updates.
   - [ ] Configuration of Status Update period.
 - [X] ~~~SSL Connections~~~ (possible?) Not possible.
 - Dimming between different light-values with given time.
   - [ ] Linear (simple).
-  - [ ] S-curve or log or something like that what looks nice and smooth.
+  - [ ] S-curve or log or something like that - what looks nice and smooth.
 
 #### 1.5.1.2. Bugs
 
@@ -120,7 +122,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [X] Analyze.
   - [X] Fix. Hack -> see https://github.com/espressif/arduino-esp32/issues/2501
 - [X] ~~~CSS tuning~~~. No access to the page generators CSS.
-- [ ] Image from an undestroyed ESP Node....
+- [ ] Picture from an undestroyed ESP Node....
 
 ### 1.5.2. Hardware
 

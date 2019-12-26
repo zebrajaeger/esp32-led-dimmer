@@ -109,7 +109,7 @@ void JsonParser::toJson(JsonDocument& result, const State& state, const DeviceDa
 }
 
 //------------------------------------------------------------------------------
-void JsonParser::doc2String(const JsonDocument& doc, String& result, bool pretty) 
+void JsonParser::doc2String(const JsonDocument& doc, String& result, bool pretty)
 //------------------------------------------------------------------------------
 {
   if (pretty) {
@@ -117,4 +117,52 @@ void JsonParser::doc2String(const JsonDocument& doc, String& result, bool pretty
   } else {
     serializeJson(doc, result);
   }
+}
+
+//------------------------------------------------------------------------------
+void JsonParser::channelDataToJsonArray(String& result, const String& msgId, const State& state)
+//------------------------------------------------------------------------------
+{
+  const size_t capacity = JSON_ARRAY_SIZE(16) + JSON_OBJECT_SIZE(2);
+  DynamicJsonDocument doc(capacity);
+  doc["msgId"] = msgId;
+  JsonArray data = doc.createNestedArray("data");
+  for (uint8_t i = 0; i < 16; ++i) {
+    data.add(state.getChannelValue(i));
+  }
+  JsonParser::doc2String(doc, result, false);
+}
+
+//------------------------------------------------------------------------------
+bool JsonParser::channelDataFromJsonArray(const String& json, String& msgId, uint16_t result[16])
+//------------------------------------------------------------------------------
+{
+  const size_t capacity = JSON_ARRAY_SIZE(16) + JSON_OBJECT_SIZE(2) + 60;
+  DynamicJsonDocument doc(capacity);
+
+  DeserializationError err = deserializeJson(doc, json);
+  if (err) {
+    Serial.print(F("deserializeJson() failed: "));
+    Serial.println(err.c_str());
+    return false;
+  } else {
+    msgId = doc["msgId"].as<char*>();
+    JsonArray data = doc["data"];
+    for (uint8_t i = 0; i < 16; ++i) {
+      result[i] = data[i];
+    }
+    return true;
+  }
+}
+
+//------------------------------------------------------------------------------
+void JsonParser::channelDataResponse(String& json, String& msgId)
+//------------------------------------------------------------------------------
+{
+  const size_t capacity = JSON_OBJECT_SIZE(1);
+  DynamicJsonDocument doc(capacity);
+
+  doc["msgId"] = msgId;
+
+  serializeJson(doc, json);
 }

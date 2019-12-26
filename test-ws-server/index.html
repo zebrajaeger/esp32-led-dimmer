@@ -1,0 +1,83 @@
+<html>
+<head>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery.rsSliderLens@1.0.5/dist/jquery.rsSliderLens.js"></script>
+    <script>
+ 
+        $(function () {
+            // WS stuff
+            let url = new URL(window.location.href);
+            let wsUrl = 'ws://' + url.hostname + ':81' + url.pathname;
+            let socket = new WebSocket(wsUrl);
+
+            socket.onopen = () => {
+                $('.connectionstate').addClass('connected');
+            };
+
+            socket.onclose = () => {
+                $('.connectionstate').removeClass('connected');
+            };
+
+            socket.onmessage = (messageEvent) => {
+                console.log("WS-MESSAGE", messageEvent.data);
+                $('.receiveText').text('Received: ' + messageEvent.data);
+            };
+
+            // button
+            $(".widget button").button();
+            $("button, input, a").click((event) => {
+                event.preventDefault();
+                socket.send('[1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024,1024]');
+            });
+        });
+    </script>
+    <style>
+        .body {
+            background-color: lightgrey;
+        }
+
+        .shadow {
+            -webkit-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.59);
+            -moz-box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.59);
+            box-shadow: 5px 5px 5px 0px rgba(0, 0, 0, 0.59);
+        }
+
+        .connectionstate {
+            background-color: red;
+            display: inline-block;
+            padding: 5px;
+            color: white;
+            margin: 10px;
+        }
+
+        .connected {
+            background-color: green;
+        }
+
+        .button {
+            margin: 10px;
+        }
+
+        .receiveText {
+            display: inline-block;
+            padding: 5px;
+            color: darkblue;
+            margin: 10px;
+            background-color: white;
+        }
+
+    </style>
+</head>
+<body class="body">
+<div class="widget">
+    <div class="shadow connectionstate">Connectionstate</div>
+    <br>
+    <div class="shadow receiveText">No Data received</div>
+    <br>
+    <button class="button">Send Values</button>
+    <br>
+</div>
+</body>
+</html>

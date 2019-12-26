@@ -48,7 +48,7 @@ uint16_t State::getChannelValue(uint8_t channel) const
 void State::setChannelValue(uint8_t channel, uint16_t value)
 //------------------------------------------------------------------------------
 {
-  LOG.i("set [%u] = %u", channel, value);
+  LOG.d("set [%u] = %u", channel, value);
   channels_[channel] = value;
 }
 

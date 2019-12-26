@@ -2,6 +2,7 @@ const {src, dest, series, parallel, watch} = require('gulp');
 
 const fs = require('fs');
 const path = require('path');
+const httpProxy = require('http-proxy');
 
 const g = {
     gzip: require('gulp-gzip'),
@@ -14,7 +15,8 @@ const g = {
     clean: require('gulp-clean'),
     concat: require('gulp-concat'),
     mergeStream: require('merge-stream'),
-    manifest: require('gulp-manifest3')
+    manifest: require('gulp-manifest3'),
+    plumber: require('gulp-plumber')
 // const htmlreplace = require('gulp-html-replace');
 };
 g.sass.compiler = require('node-sass');
@@ -45,6 +47,7 @@ const config = {
 function jsTask() {
     return g.pipeline(
         src(path.posix.join(config.srcDir, '*.js')),
+        g.plumber(),
         g.concat('app.js'),
         dest(config.distDir),
         g.sourcemaps.init(),
@@ -57,6 +60,7 @@ function jsTask() {
 function cssTask() {
     return g.pipeline(
         src(path.posix.join(config.srcDir, '*.scss')),
+        g.plumber(),
         g.sourcemaps.init(),
         g.sass().on('error', g.sass.logError),
         g.concat('app.css'),
@@ -70,6 +74,7 @@ function cssTask() {
 function htmlTask() {
     return g.pipeline(
         src(path.posix.join(config.srcDir, '*.html')),
+        g.plumber(),
         dest(config.distDir),
         g.htmlmin({collapseWhitespace: true}),
         g.gzip({gzipOptions: {level: 9}}),
@@ -80,6 +85,7 @@ function htmlTask() {
 function vendorJsTask() {
     return g.pipeline(
         src(path.posix.join(config.vendorDir, '*.js')),
+        g.plumber(),
         g.sourcemaps.init(),
         g.concat('vendor.js'),
         dest(config.distDir),
@@ -93,6 +99,7 @@ function vendorJsTask() {
 function vendorCssTask() {
     return g.pipeline(
         src(path.posix.join(config.vendorDir, '*.css')),
+        g.plumber(),
         g.sourcemaps.init(),
         g.concat('vendor.css'),
         dest(config.distDir),
@@ -109,18 +116,21 @@ function copyTask() {
             path.posix.join(config.distDir, '*.js.gz'),
             path.posix.join(config.distDir, 'appcache.manifest')
         ]),
+        g.plumber(),
         dest(config.targetDir));
 }
 
 function cleanDistTask() {
     return g.pipeline(
         src(path.posix.join(config.distDir, '**/*'), {read: false, allowEmpty: true}),
+        g.plumber(),
         g.clean());
 }
 
 function cleanTargetTask() {
     return g.pipeline(
         src(config.targetDir, {read: false, allowEmpty: true}),
+        g.plumber(),
         g.clean({force: true}));
 }
 
@@ -157,7 +167,7 @@ function fileListTask(cb) {
             const symbol = relativePath.replace(/\.|\/|\\|-/g, '_');
             const startSymbol = symbol + '_start';
             const endSymbol = symbol + '_end';
-            const mime = util.mimeTypes.lookup(ext);
+            const mime = util.mimeTypes.lookup(rawName);
 
             // file.h
             fileHContent += '// ' + relativePath + '\n';
@@ -167,7 +177,7 @@ function fileListTask(cb) {
             // webserver.h
             webserverHContent += 'webServer_.on("/' + (rawName === 'index.html' ? '' : rawName) + '", [this]() {\n';
             webserverHContent += '  webServer_.sendHeader("Content-Encoding", "gzip");\n';
-            webserverHContent += '  webServer_.send_P(200, "' + mime + '", ' + startSymbol + ', ' + endSymbol + ' - ' + startSymbol + ' - 1);\n';
+            webserverHContent += '  webServer_.send_P(200, "' + mime + '", ' + startSymbol + ', ' + endSymbol + ' - ' + startSymbol + ');\n';
             webserverHContent += '});\n\n';
 
             // plaformio.ini
@@ -195,11 +205,24 @@ function reloadTask(cb) {
 }
 
 function watchTask() {
-    server.init({
+    let options = {
         server: {
             baseDir: config.distDir,
         }
-    });
+    };
+
+    let arguments = require('commander').option('-p --proxy <target>', 'backend').parse(process.argv);
+    console.log("args", arguments.opts());
+
+    if (arguments.proxy) {
+        console.log("Start WS proxy @ ", arguments.proxy);
+        httpProxy.createServer({
+            target: arguments.proxy,
+            ws: true
+        }).listen(81);
+    }
+
+    server.init(options);
     watch(path.posix.join(config.srcDir, '*.html'), series(htmlTask, pwaTask, copyTask, reloadTask));
     watch(path.posix.join(config.srcDir, '*.js'), series(jsTask, pwaTask, copyTask, reloadTask));
     watch(path.posix.join(config.srcDir, '*.scss'), series(cssTask, pwaTask, copyTask, reloadTask));
@@ -219,6 +242,7 @@ exports.vjsc = vendorJsTask;
 exports.copy = copyTask;
 exports.files = fileListTask;
 exports.pwa = pwaTask;
+exports.watch = watchTask;
 exports.build = series(parallel(cleanDistTask, cleanTargetTask), parallel(jsTask, htmlTask, cssTask, vendorCssTask, vendorJsTask), pwaTask, copyTask, fileListTask);
 
 exports.default = exports.build;

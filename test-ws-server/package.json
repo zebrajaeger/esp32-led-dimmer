@@ -1,0 +1,16 @@
+{
+  "name": "test-ws-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "s": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "open": "^7.0.0",
+    "ws": "^7.2.1"
+  }
+}

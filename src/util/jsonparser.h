@@ -42,6 +42,10 @@ class JsonParser {
   static void toJson(JsonDocument& result, const State& state, const DeviceData& deviceData);
   static void doc2String(const JsonDocument& doc, String& result, bool pretty);
 
+  static void channelDataToJsonArray(String& result, const String& msgId, const State& state);
+  static bool channelDataFromJsonArray(const String& json, String& msgId, uint16_t result[16]);
+  static void channelDataResponse( String& json, String& msgId);
+
  protected:
   static void parseChannelDataSection(const JsonObject& section, void (*cb_c)(uint8_t channel, uint16_t value));
 };
