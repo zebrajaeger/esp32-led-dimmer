@@ -94,6 +94,7 @@ This thing is to connect a LED-Lamp (with up to 16 channels and 4096 steps resol
   - [X] Webapp backend.
   - [X] Webapp frontend.
   - [ ] Connection indicator.
+  - [ ] Trigger WS-Server on status change.
   - [ ] Documentation (screenshots).
 - Smart Config [Expressiv doc](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/network/esp_smartconfig.html), [Google](https://lmgtfy.com/?q=esp32+smartconfig), [Other](https://www.switchdoc.com/2018/06/tutorial-esp32-bc24-provisioning-for-wifi/)
 - Art-Net (<https://en.wikipedia.org/wiki/Art-Net>).
