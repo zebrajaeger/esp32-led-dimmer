@@ -28,7 +28,7 @@
     "gulp-sass": "^4.0.2",
     "gulp-sourcemaps": "^2.6.5",
     "gulp-terser": "^1.2.0",
-    "http-proxy": "^1.18.0",
+    "http-proxy": "^1.18.1",
     "merge-stream": "^2.0.0",
     "mime-types": "^2.1.25",
     "node-sass": "^4.13.0",
