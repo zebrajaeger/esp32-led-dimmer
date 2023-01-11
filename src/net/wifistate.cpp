@@ -76,9 +76,9 @@ void WiFiState::onWifiEvent(WiFiEvent_t event, WiFiEventInfo_t info)
       }
       break;
     case SYSTEM_EVENT_STA_DISCONNECTED:
-      LOG.d("disconnected, Reason: %u", info.disconnected.reason);
+      LOG.d("disconnected, Reason: %u", info.wps_fail_reason);
       if (cbDisconnect_ != NULL) {
-        cbDisconnect_(isConnected_, info.disconnected.reason);
+        cbDisconnect_(isConnected_, info.wps_fail_reason);
       }
       isConnected_ = false;
       break;

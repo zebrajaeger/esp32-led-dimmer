@@ -19,6 +19,25 @@
         ]
     },
     {
+        "title": "Artnet",
+        "uri": "/artnet",
+        "menu": true,
+        "element": [
+            {
+                "name": "universe",
+                "type": "ACInput",
+                "label": "Universe",
+                "placeholder": "Universe"
+            },
+            {
+                "name": "set",
+                "type": "ACSubmit",
+                "value": "SET",
+                "uri": "/artnet_set"
+            }
+        ]
+    },
+    {
         "title": "Mqtt",
         "uri": "/mqtt",
         "menu": true,

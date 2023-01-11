@@ -36,10 +36,16 @@ class MqttData {
   String password;
 };
 
+class ArtnetData {
+ public:
+  uint16_t universe;
+};
+
 class ConfigServer {
  public:
   typedef std::function<void(DeviceData& data)> deviceSetFunction_t;
   typedef std::function<void(MqttData& data)> mqttSetFunction_t;
+  typedef std::function<void(ArtnetData& data)> artnetSetFunction_t;
 
   ConfigServer();
 
@@ -47,12 +53,15 @@ class ConfigServer {
   void loop();
   void setDeviceData(DeviceData& data);
   void setMqttData(MqttData& data);
+  void setArtnetData(ArtnetData& data);
   void onDeviceSet(deviceSetFunction_t f);
   void onMqttSet(mqttSetFunction_t f);
+  void onArtnetSet(artnetSetFunction_t f);
 
  private:
   void onDeviceSet_();
   void onMqttSet_();
+  void onArtnetSet_();
   void redirect(const String toLocation);
 
   Logger LOG;
@@ -60,4 +69,5 @@ class ConfigServer {
   AutoConnect autoConnect_;
   deviceSetFunction_t onDeviceSetCB_;
   mqttSetFunction_t onMqttSetCB_;
+  artnetSetFunction_t onArtnetSetCB_;
 };

@@ -40,6 +40,7 @@ bool ConfigServer::begin(String& title)
 
   webServer_.on("/device_set", std::bind(&ConfigServer::onDeviceSet_, this));
   webServer_.on("/mqtt_set", std::bind(&ConfigServer::onMqttSet_, this));
+  webServer_.on("/artnet_set", std::bind(&ConfigServer::onArtnetSet_, this));
 
   AutoConnectConfig autoConnectConfig;
   autoConnectConfig.title = title;
@@ -111,6 +112,19 @@ void ConfigServer::setMqttData(MqttData& data)
 }
 
 //------------------------------------------------------------------------------
+void ConfigServer::setArtnetData(ArtnetData& data)
+//------------------------------------------------------------------------------
+{
+  AutoConnectAux* mqtt = autoConnect_.aux("/artnet");
+  if (!mqtt) {
+    Serial.println("[ConfigServer] Error: could not found artnet section in configuration");
+    return;
+  }
+  AutoConnectInput& topic = mqtt->getElement<AutoConnectInput>("universe");
+  topic.value = data.universe;
+}
+
+//------------------------------------------------------------------------------
 void ConfigServer::onDeviceSet(deviceSetFunction_t f)
 //------------------------------------------------------------------------------
 {
@@ -122,6 +136,13 @@ void ConfigServer::onMqttSet(mqttSetFunction_t f)
 //------------------------------------------------------------------------------
 {
   onMqttSetCB_ = f;
+}
+
+//------------------------------------------------------------------------------
+void ConfigServer::onArtnetSet(artnetSetFunction_t f)
+//------------------------------------------------------------------------------
+{
+  onArtnetSetCB_ = f;
 }
 
 //------------------------------------------------------------------------------
@@ -149,6 +170,17 @@ void ConfigServer::onMqttSet_()
     onMqttSetCB_(data);
   }
   redirect("/mqtt");
+}
+//------------------------------------------------------------------------------
+void ConfigServer::onArtnetSet_()
+//------------------------------------------------------------------------------
+{
+  if (onArtnetSetCB_ != NULL) {
+    ArtnetData data;
+    data.universe = webServer_.arg("universe").toInt();
+    onArtnetSetCB_(data);
+  }
+  redirect("/artnet");
 }
 
 //------------------------------------------------------------------------------

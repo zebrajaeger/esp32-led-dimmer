@@ -16,27 +16,23 @@
  */
 
 #include <Arduino.h>
-
 #include <ESPmDNS.h>
 #include <Wifi.h>
+#include <Wire.h>
 
-#include "state.h"
-#include "statistic.h"
-
+#include "config/config.h"
+#include "config/configserver.h"
+#include "hardware/fram.h"
+#include "hardware/pwm.h"
+#include "hardware/statusled.h"
 #include "net/artnet.h"
 #include "net/mqtt.h"
 #include "net/ota.h"
 #include "net/reconnector.h"
 #include "net/websocket.h"
 #include "net/wifistate.h"
-
-#include "config/config.h"
-#include "config/configserver.h"
-
-#include "hardware/fram.h"
-#include "hardware/pwm.h"
-#include "hardware/statusled.h"
-
+#include "state.h"
+#include "statistic.h"
 #include "util/jsonparser.h"
 #include "util/logger.h"
 #include "util/multitimer.h"
@@ -50,6 +46,10 @@
 #define I2C_SPEED 400000
 #define I2C_SCL 22
 #define I2C_SDA 23
+//------------------------------------------------------------------------------
+
+enum MODE { MODE_LAMP, MODE_E131, MODE_OTA };
+
 //------------------------------------------------------------------------------
 String id;
 Config config;
@@ -67,6 +67,7 @@ StatusLed statusLed(2);
 Artnet artNet;
 Logger LOG("App");
 Websocket websocketServer;
+MODE mode = MODE_LAMP;
 
 void webSocketEvent(uint8_t num, WStype_t type, uint8_t* payload, size_t length) { Serial.println("XXXX"); }
 
@@ -126,10 +127,44 @@ bool mqttConnect()
   return result;
 }
 
+void scanI2C() {
+  int nDevices;
+
+  Serial.println("Scanning...");
+
+  nDevices = 0;
+  for (uint8_t address = 1; address < 127; address++) {
+    // The i2c_scanner uses the return value of
+    // the Write.endTransmisstion to see if
+    // a device did acknowledge to the address.
+    Wire.beginTransmission(address);
+    uint8_t error = Wire.endTransmission();
+
+    if (error == 0) {
+      Serial.print("I2C device found at address 0x");
+      if (address < 16) Serial.print("0");
+      Serial.print(address, HEX);
+      Serial.println("  !");
+
+      nDevices++;
+    } else if (error == 4) {
+      Serial.print("Unknown error at address 0x");
+      if (address < 16) Serial.print("0");
+      Serial.println(address, HEX);
+    }
+  }
+  if (nDevices == 0)
+    Serial.println("No I2C devices found\n");
+  else
+    Serial.println("done\n");
+}
+
 //------------------------------------------------------------------------------
 void setup()
 //------------------------------------------------------------------------------
 {
+  // for(;;);
+
   // Debug out
   Serial.begin(WIRE_SPEED);
 
@@ -161,8 +196,10 @@ void setup()
   }
 
   // I2C Bus
+  Wire.end();
   if (Wire.begin(I2C_SDA, I2C_SCL, I2C_SPEED)) {
     LOG.i("Wire initialized");
+    scanI2C();
   } else {
     LOG.e("Could not initialize Wire");
   }
@@ -171,11 +208,12 @@ void setup()
   if (fram.begin()) {
     LOG.i("Found I2C FRAM");
     if (!fram.validateCRC()) {
-      LOG.w("     FRAM CRC check faild. Initialize...");
+      LOG.w("     FRAM CRC check failed. Initialize...");
       setFrequency(1500);
       for (uint8_t i = 0; i < 16; ++i) {
         setChannelValue(i, 2048);  // 50%
       }
+      fram.setFrequency(1500);
       fram.recalculateCRC();
     } else {
       LOG.i("FRAM CRC ok");
@@ -247,6 +285,11 @@ void setup()
     config.save();
     mqttConnect();
   });
+  configServer.onArtnetSet([](ArtnetData& data) {
+    configServer.setArtnetData(data);
+    config.setArtnetUniverse(data.universe);
+    config.save();
+  });
   if (configServer.begin(String("LED-Dimmer ") + SOFTWARE_VERSION)) {
     DeviceData deviceData;
     deviceData.deviceName = config.getDeviceName();
@@ -286,8 +329,9 @@ void setup()
   if (mqtt.begin()) {
     LOG.i("Mqtt client initialized");
     mqtt.onData([](JsonDocument& doc) {
-      JsonParser::parseChannelData(doc, [](uint16_t frequency) { setFrequency(frequency); },
-                                   [](uint8_t channel, uint16_t value) { setChannelValue(channel, value); });
+      JsonParser::parseChannelData(
+          doc, [](uint16_t frequency) { setFrequency(frequency); },
+          [](uint8_t channel, uint16_t value) { setChannelValue(channel, value); });
       fram.recalculateCRC();
       // fram.dump();
       publishState(true, false, false);
@@ -343,31 +387,28 @@ void setup()
     LOG.i("Websocket server initialized");
   }
 
-  // Artnet
-  LOG.i("Initialize ArtNet with universe: '%u'", config.getArtnetUniverse());
+  // e1.31
+  LOG.i("Initialize e1.31 with universe: '%u'", config.getArtnetUniverse());
   if (artNet.begin(config.getArtnetUniverse())) {
     LOG.i("Artnet initialized");
-    // PERM Data -> store like mqtt
-    artNet.onPermanentData([](uint16_t frequency, uint16_t* channelData, uint16_t length) {
-      setFrequency(frequency);
-      for (uint16_t i = 0; i < length && i < 16; ++i) {
-        setChannelValue(i, channelData[i]);
+    artNet.onData([](uint8_t* channelData, uint16_t length) {
+      if (mode == MODE_LAMP) {
+        LOG.i("MODE: LAMP -> E131");
+        mode = MODE_E131;
+        pwm.setFrequency(1500);
       }
-      fram.recalculateCRC();
-      publishState(true, false, false);
-    });
-    // TEMP Data -> only change PWM and don't touch state
-    artNet.onTemporaryData([](uint16_t frequency, uint16_t* channelData, uint16_t length) {
-      pwm.setFrequency(frequency);
       for (uint16_t i = 0; i < length && i < 16; ++i) {
-        pwm.setChannelValue(i, channelData[i]);
+        pwm.setChannelValueLog(i, channelData[i]);
       }
     });
-    // RESET -> set pwm values from state
-    artNet.onResetData([&]() {
-      pwm.setFrequency(state.getFrequency());
-      for (uint16_t i = 0; i < 16; ++i) {
-        pwm.setChannelValue(i, state.getChannelValue(i));
+    artNet.onTimeout([]() {
+      if (mode == MODE_E131) {
+        LOG.i("MODE: E131 -> LAMP");
+        mode == MODE_LAMP;
+        pwm.setFrequency(state.getFrequency());
+        for (uint8_t i = 0; i < 16; ++i) {
+          pwm.setChannelValue(i, state.getChannelValue(i));
+        }
       }
     });
   } else {
@@ -385,15 +426,47 @@ void setup()
 void loop()
 //------------------------------------------------------------------------------
 {
-  ota.loop();
-  // speed up updates.
-  if (!ota.isUpdating()) {
-    mqtt.loop();
-    configServer.loop();
-    reconnector.loop();
-    multiTimer.loop();
-    artNet.loop();
-    websocketServer.loop();
+  switch (mode) {
+    case MODE_LAMP:
+      ota.loop();
+      if (ota.isUpdating()) {
+        mode = MODE_OTA;
+      } else {
+        artNet.loop();
+        mqtt.loop();
+        configServer.loop();
+        reconnector.loop();
+        multiTimer.loop();
+        websocketServer.loop();
+        statistic.loop();
+      }
+      break;
+
+    case MODE_E131:
+      // on artnet paket, we switch to E131 Mode
+      // on artnet timeout we switch back to LAMP modus
+      artNet.loop();
+      break;
+
+    case MODE_OTA:
+      ota.loop();
+      if (!ota.isUpdating()) {
+        mode = MODE_LAMP;
+      }
+      break;
   }
-  statistic.loop();
+  // artNet.loop();
+  // if(mode==LAMP){
+  //   ota.loop();
+  //   // speed up updates.
+  //   if (!ota.isUpdating()) {
+  //     mqtt.loop();
+  //     configServer.loop();
+  //     reconnector.loop();
+  //     multiTimer.loop();
+  //     websocketServer.loop();
+  //   }
+  // }
+  //
+  // statistic.loop();
 }

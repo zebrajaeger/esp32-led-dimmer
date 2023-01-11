@@ -27,6 +27,8 @@ class PWM {
   bool begin();
   uint16_t setFrequency(uint16_t frequency);
   void setChannelValue(uint8_t channel, uint16_t value);
+  void setChannelValue8(uint8_t channel, uint8_t value);
+  void setChannelValueLog(uint8_t channel, uint8_t value);
 
  private:
   FaBoPWM faboPWM_;

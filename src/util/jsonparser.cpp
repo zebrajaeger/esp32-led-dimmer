@@ -146,7 +146,7 @@ bool JsonParser::channelDataFromJsonArray(const String& json, String& msgId, uin
     Serial.println(err.c_str());
     return false;
   } else {
-    msgId = doc["msgId"].as<char*>();
+    msgId = doc["msgId"].as<const char*>();
     JsonArray data = doc["data"];
     for (uint8_t i = 0; i < 16; ++i) {
       result[i] = data[i];

@@ -16,6 +16,7 @@
  */
 
 #include "pwm.h"
+#include "../util/dimcurve.h"
 
 //------------------------------------------------------------------------------
 PWM::PWM()
@@ -48,7 +49,23 @@ uint16_t PWM::setFrequency(uint16_t frequency)
 void PWM::setChannelValue(uint8_t channel, uint16_t value)
 //------------------------------------------------------------------------------
 {
-  if (channel > 15) channel = 15;
+  if (channel > 15)  channel = 15;
   if (value > 4095) value = 4095;
   faboPWM_.set_channel_value(channel, value);
+}
+
+//------------------------------------------------------------------------------
+void PWM::setChannelValue8(uint8_t channel, uint8_t value)
+//------------------------------------------------------------------------------
+{
+  if (channel > 15)  return;
+  faboPWM_.set_channel_value(channel, value);
+}
+
+//------------------------------------------------------------------------------
+void PWM::setChannelValueLog(uint8_t channel, uint8_t value)
+//------------------------------------------------------------------------------
+{
+  if (channel > 15)  return;
+  faboPWM_.set_channel_value(channel, pwmtable_16[value] >> 4);
 }

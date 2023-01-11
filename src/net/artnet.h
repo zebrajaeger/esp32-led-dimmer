@@ -16,12 +16,15 @@
  */
 
 #include <Arduino.h>
+// #include <ArtnetWifi.h>
+#include <ESPAsyncE131.h>
 #include <stdio.h>
+
 #include <functional>
 
-#include <ArtnetWifi.h>
-
 #include "util/logger.h"
+
+#define UNIVERSE_COUNT 1  // Total number of Universes to listen for, starting at UNIVERSE
 
 // thats why i hate c++
 // many thx to https://stackoverflow.com/questions/1000663/using-a-c-class-member-function-as-a-c-callback-function/56943930#56943930
@@ -45,28 +48,30 @@ std::function<Ret(Params...)> Callback<Ret(Params...)>::func;
  */
 class Artnet {
  public:
-  enum messageType_t { PERMANENT = 0, TEMPORARY = 1, RESET = 2 };
+  // enum messageType_t { PERMANENT = 0, TEMPORARY = 1, RESET = 2 };
 
   typedef void (*callback_t)(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data);
-
-  typedef void (*DataCallback)(uint16_t frequency, uint16_t* data, uint16_t dataLenght);
-  typedef void (*ResetCallback)();
+  typedef void (*DataCallback)(uint8_t* data, uint16_t length);
+  typedef void (*TimeoutCallback)();
 
   Artnet();
-  bool begin(uint16_t universe);
+  bool begin(uint16_t universe, uint64_t timeoutUs = 5000*1000); // default timeout: 5s
   void loop();
-  void onTemporaryData(DataCallback cb);
-  void onPermanentData(DataCallback cb);
-  void onResetData(ResetCallback cb);
+  void onData(DataCallback cb);
+  void onTimeout(TimeoutCallback cb);
 
  protected:
-  void onArtnetData(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data);
+  // void onArtnetData(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data);
 
  private:
   Logger LOG;
-  ArtnetWifi artnet_;
-  uint16_t universe_;
-  DataCallback temporaryDataCallback_;
-  DataCallback permanentDataCallback_;
-  ResetCallback resetCallback_;
+  // ArtnetWifi artnet_;
+  ESPAsyncE131 e131;
+  // uint16_t universe_;
+
+  uint64_t timeoutUs_;
+  uint64_t lastPaketTimestampUs_;
+
+  DataCallback dataCallback_;
+  TimeoutCallback timeoutCallback_;
 };
