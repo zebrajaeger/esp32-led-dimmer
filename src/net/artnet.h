@@ -16,7 +16,6 @@
  */
 
 #include <Arduino.h>
-// #include <ArtnetWifi.h>
 #include <ESPAsyncE131.h>
 #include <stdio.h>
 
@@ -48,8 +47,6 @@ std::function<Ret(Params...)> Callback<Ret(Params...)>::func;
  */
 class Artnet {
  public:
-  // enum messageType_t { PERMANENT = 0, TEMPORARY = 1, RESET = 2 };
-
   typedef void (*callback_t)(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data);
   typedef void (*DataCallback)(uint8_t* data, uint16_t length);
   typedef void (*TimeoutCallback)();
@@ -60,18 +57,11 @@ class Artnet {
   void onData(DataCallback cb);
   void onTimeout(TimeoutCallback cb);
 
- protected:
-  // void onArtnetData(uint16_t universe, uint16_t length, uint8_t sequence, uint8_t* data);
-
  private:
   Logger LOG;
-  // ArtnetWifi artnet_;
   ESPAsyncE131 e131;
-  // uint16_t universe_;
-
   uint64_t timeoutUs_;
   uint64_t lastPaketTimestampUs_;
-
   DataCallback dataCallback_;
   TimeoutCallback timeoutCallback_;
 };

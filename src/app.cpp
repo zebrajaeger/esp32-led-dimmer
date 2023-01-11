@@ -33,13 +33,14 @@
 #include "net/wifistate.h"
 #include "state.h"
 #include "statistic.h"
+#include "util/color.h"
 #include "util/jsonparser.h"
 #include "util/logger.h"
 #include "util/multitimer.h"
 #include "util/utils.h"
 
 //------------------------------------------------------------------------------
-#define SOFTWARE_VERSION "1.0.1"
+#define SOFTWARE_VERSION "2.1.0"
 
 #define WIRE_SPEED 115200
 
@@ -330,7 +331,11 @@ void setup()
     LOG.i("Mqtt client initialized");
     mqtt.onData([](JsonDocument& doc) {
       JsonParser::parseChannelData(
-          doc, [](uint16_t frequency) { setFrequency(frequency); },
+          doc,
+          [](uint16_t frequency) {
+            // prevent flickering
+            if (state.getFrequency() != frequency) setFrequency(frequency);
+          },
           [](uint8_t channel, uint16_t value) { setChannelValue(channel, value); });
       fram.recalculateCRC();
       // fram.dump();
@@ -397,8 +402,16 @@ void setup()
         mode = MODE_E131;
         pwm.setFrequency(1500);
       }
-      for (uint16_t i = 0; i < length && i < 16; ++i) {
-        pwm.setChannelValueLog(i, channelData[i]);
+
+      // RGB Mode
+      // for (uint16_t i = 0; i < length && i < 16; ++1) {
+      //   pwm.setChannelValueLog(i, channelData[i]);
+      // }
+
+      // RGB -> White MODE
+      uint8_t ch = 0;
+      for (uint16_t i = 0; i < length && i < 48; i += 3) {
+        pwm.setChannelValueLog(ch++, rgbToWhite(channelData[i], channelData[i + 1], channelData[i + 2]));
       }
     });
     artNet.onTimeout([]() {
@@ -455,18 +468,4 @@ void loop()
       }
       break;
   }
-  // artNet.loop();
-  // if(mode==LAMP){
-  //   ota.loop();
-  //   // speed up updates.
-  //   if (!ota.isUpdating()) {
-  //     mqtt.loop();
-  //     configServer.loop();
-  //     reconnector.loop();
-  //     multiTimer.loop();
-  //     websocketServer.loop();
-  //   }
-  // }
-  //
-  // statistic.loop();
 }

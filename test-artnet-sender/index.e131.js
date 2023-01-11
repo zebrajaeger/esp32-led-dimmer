@@ -1,30 +1,43 @@
 var e131 = require('e131');
- 
-var client = new e131.Client('192.168.178.34');  // or use a universe
-var packet = client.createPacket(16);  // we want 8 RGB (x3) slots
+
+const l = 30; // RGB Mode
+// const l = 10; // white mode
+// var client = new e131.Client('192.168.178.23');
+var client = new e131.Client('192.168.178.34');
+var packet = client.createPacket(l);  // we want 8 RGB (x3) slots
 var slotsData = packet.getSlotsData();
 packet.setSourceName('test E1.31 client');
 packet.setUniverse(0x01);  // make universe number consistent with the client
 packet.setOption(packet.Options.PREVIEW, true);  // don't really change any fixture
 packet.setPriority(packet.DEFAULT_PRIORITY);  // not strictly needed, done automatically
 
-slotsData[0] = 100;
-slotsData[1] = 100;
-slotsData[2] = 100;
-slotsData[13] = 100;
-slotsData[14] = 100;
-slotsData[15] = 255;  
-client.send(packet) 
+setRGB(0, 255, 0, 0);
+setRGB(1, 0, 255, 0);
+setRGB(2, 0, 0, 255);
+setRGB(5, 255, 255, 255);
+//cycleColor() 
+staticColor()
 
-// slotsData is a Buffer view, you can use it directly
-var color = 0;
-function cycleColor() {
-  for (var idx=0; idx<slotsData.length; idx++) {
-    slotsData[idx] = color % 0xff;
-    color = color + 90;
-  }
+function setRGB(index, r, g, b) {
+  const i = index * 3;
+  slotsData[i] = r;
+  slotsData[i + 1] = g;
+  slotsData[i + 2] = b;
+}
+
+function staticColor() {
   client.send(packet, function () {
-    setTimeout(cycleColor, 125);
+    setTimeout(staticColor, 500);
+  });
+}
+
+function cycleColor() {
+  let first = slotsData[0];
+  for (let i = 1; i < l; ++i) {
+    slotsData[i - 1] = slotsData[i];
+  }
+  slotsData[l - 1] = first;
+  client.send(packet, function () {
+    setTimeout(cycleColor, 50);
   });
 } 
-// cycleColor() 

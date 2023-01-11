@@ -67,5 +67,5 @@ void PWM::setChannelValueLog(uint8_t channel, uint8_t value)
 //------------------------------------------------------------------------------
 {
   if (channel > 15)  return;
-  faboPWM_.set_channel_value(channel, pwmtable_16[value] >> 4);
+  faboPWM_.set_channel_value(channel, pwmtable_16[value]);
 }
