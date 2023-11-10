@@ -31,7 +31,7 @@
     "http-proxy": "^1.18.0",
     "merge-stream": "^2.0.0",
     "mime-types": "^2.1.25",
-    "node-sass": "^4.13.0",
+    "node-sass": "^7.0.0",
     "readable-stream": "^3.4.0",
     "recursive-readdir": "^2.2.2"
   }
